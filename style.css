@@ -1,10 +1,12 @@
 :root {
-  --black: #333;
+  --black: #393939;
   --white: #efecd6;
-  --cell-size: 80px;
+  --cell-size: 60px;
   --checker-size: calc(var(--cell-size) * 0.8);
-  --checker-alien: red;
-  --checker-friend: blue;
+  --checker-red: radial-gradient(circle, rgb(243 46 46) 10%, rgb(161 36 36) 40%, rgb(181 36 36) 45%, rgb(205 66 66) 65%, rgb(151 26 26) 70%);
+  --checker-blue: radial-gradient(circle, rgb(46 46 243) 10%, rgb(36 36 161 ) 40%, rgb(36 36 181) 45%, rgb(66 66 205) 65%, rgb(26 26 151) 70%);;
+  --checker-white: radial-gradient(circle, rgb(243 243 243) 10%, rgb(191 191 191) 40%, rgb(213 213 213) 45%, rgb(235 235 235) 65%, rgb(250 250 250) 70%);
+  --checker-black: radial-gradient(circle, rgb(13 13 13) 10%, rgb(41 41 41) 40%, rgb(28 28 28) 45%, rgb(15 15 15) 65%, rgb(3 3 3) 70%);
   --border-width: 5px;
 }
 
@@ -23,7 +25,7 @@ body {
 
 main {
   margin: 150px auto;
-  border: calc(var(--border-width) * 4) solid var(--white);
+  border: calc(var(--border-width) * 6) solid var(--white);
   width: calc((var(--cell-size) * 8) + (var(--border-width) * 2));
 }
 
@@ -47,18 +49,30 @@ main {
   height: var(--cell-size);
 }
 
-.board div:nth-child(16n + 1),
-.board div:nth-child(16n + 3),
-.board div:nth-child(16n + 5),
-.board div:nth-child(16n + 7),
-.board div:nth-child(16n + 10),
-.board div:nth-child(16n + 12),
-.board div:nth-child(16n + 14),
-.board div:nth-child(16n) {
+.board .cell {
   background: var(--black);
-} 
+}
 
-.alien::before, .friend::before {
+.horisontal, .vertical {
+  font-size: 18px;
+  font-weight: bold;
+  font-family: 'Arial';
+  color: #6c542f;
+}
+
+.horisontal dd {
+  position: absolute;
+  bottom: calc(var(--border-width) * -6);
+  left: calc(50% - 9px);
+}
+
+.vertical span {
+  position: absolute;
+  left: calc(var(--border-width) * -4);
+  bottom: calc(50% - 9px);
+}
+
+[data-alien]::after, [data-friend]::after {
   content: '';
   position: absolute;
   display: block;
@@ -69,9 +83,10 @@ main {
   left: calc(50% - var(--checker-size) / 2);
   z-index: 1;
 }
-.alien::before {
-  background: var(--checker-alien);
+[data-alien]::after {
+  background: var(--checker-black)
+
 }
-.friend::before {
-  background: var(--checker-friend);
+[data-friend]::after {
+  background: var(--checker-white);
 }

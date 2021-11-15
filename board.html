@@ -6,75 +6,107 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="./style.css">
   <title>Checkers</title>
+  <script defer src="./logic.js"></script>
 </head>
 <body>
   <header></header>
   <main>
     <div class="board">
-      <div id="1" class="alien"></div>
-      <div id="2" class="friend"></div>
-      <div id="3"></div>
-      <div id="4"></div>
-      <div id="5"></div>
-      <div id="6"></div>
-      <div id="7"></div>
-      <div id="8"></div>
-      <div id="9"></div>
-      <div id="10"></div>
-      <div id="11"></div>
-      <div id="12"></div>
-      <div id="13"></div>
-      <div id="14"></div>
-      <div id="15"></div>
-      <div id="16"></div>
-      <div id="17"></div>
-      <div id="18"></div>
-      <div id="19"></div>
-      <div id="20"></div>
-      <div id="21"></div>
-      <div id="22"></div>
-      <div id="23"></div>
-      <div id="24"></div>
-      <div id="25"></div>
-      <div id="26"></div>
-      <div id="27"></div>
-      <div id="28"></div>
-      <div id="29"></div>
-      <div id="30"></div>
-      <div id="31"></div>
-      <div id="32"></div>
-      <div id="33"></div>
-      <div id="34"></div>
-      <div id="35"></div>
-      <div id="36"></div>
-      <div id="37"></div>
-      <div id="38"></div>
-      <div id="39"></div>
-      <div id="40"></div>
-      <div id="41"></div>
-      <div id="42"></div>
-      <div id="43"></div>
-      <div id="44"></div>
-      <div id="45"></div>
-      <div id="46"></div>
-      <div id="47"></div>
-      <div id="48"></div>
-      <div id="49"></div>
-      <div id="50"></div>
-      <div id="51"></div>
-      <div id="52"></div>
-      <div id="53"></div>
-      <div id="54"></div>
-      <div id="55"></div>
-      <div id="56"></div>
-      <div id="57"></div>
-      <div id="58"></div>
-      <div id="59"></div>
-      <div id="60"></div>
-      <div id="61"></div>
-      <div id="62"></div>
-      <div id="63"></div>
-      <div id="64"></div>
+      <div class="vertical">
+        <span>8</span>
+      </div>
+      <div class="cell" id="b8"></div>
+      <div></div>
+      <div class="cell" id="d8"></div>
+      <div></div>
+      <div class="cell" id="f8"></div>
+      <div></div>
+      <div class="cell" id="h8"></div>
+      <div class="vertical cell" id="a7">
+        <span>7</span>
+      </div>
+      <div></div>
+      <div class="cell" id="c7"></div>
+      <div></div>
+      <div class="cell" id="e7"></div>
+      <div></div>
+      <div class="cell" id="g7"></div>
+      <div></div>
+      <div class="vertical">
+        <span>6</span>
+      </div>
+      <div class="cell" id="b6"></div>
+      <div></div>
+      <div class="cell" id="d6"></div>
+      <div></div>
+      <div class="cell" id="f6"></div>
+      <div></div>
+      <div class="cell" id="h6"></div>
+      <div class="vertical cell" id="a5">
+        <span>5</span>
+      </div>
+      <div></div>
+      <div class="cell" id="c5"></div>
+      <div></div>
+      <div class="cell" id="e5"></div>
+      <div></div>
+      <div class="cell" id="g5"></div>
+      <div></div>
+      <div class="vertical">
+        <span>4</span>
+      </div>
+      <div class="cell" id="b4"></div>
+      <div></div>
+      <div class="cell" id="d4"></div>
+      <div></div>
+      <div class="cell" id="f4"></div>
+      <div></div>
+      <div class="cell" id="h4"></div>
+      <div class=" vertical cell" id="a3">
+        <span>3</span>
+      </div>
+      <div></div>
+      <div class="cell" id="c3"></div>
+      <div></div>
+      <div class="cell" id="e3"></div>
+      <div></div>
+      <div class="cell" id="g3"></div>
+      <div></div>
+      <div class="vertical">
+        <span>2</span>
+      </div>
+      <div class="cell" id="b2"></div>
+      <div></div>
+      <div class="cell" id="d2"></div>
+      <div></div>
+      <div class="cell" id="f2"></div>
+      <div></div>
+      <div class="cell" id="h2"></div>
+      <div class="horisontal vertical cell" id="a1" data-friend='1'>
+        <dd>A</dd>
+        <span>1</span>
+      </div>
+      <div class="horisontal">
+        <dd>B</dd>
+      </div>
+      <div class="horisontal cell" id="c1" data-friend='2'>
+        <dd>C</dd>
+      </div>
+      <div class="horisontal">
+        <dd>D</dd>
+      </div>
+      <div class="horisontal cell" id="e1">
+        <dd>E</dd>
+      </div>
+      <div class="horisontal">
+        <dd>F</dd>
+      </div>
+      <div class="horisontal cell" id="g1">
+        <dd>G</dd>
+      </div>
+      <div class="horisontal">
+        <dd>H</dd>
+      </div>
     </div>
   </main>
 </body>

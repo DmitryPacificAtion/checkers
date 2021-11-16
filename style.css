@@ -42,14 +42,16 @@ main {
   border: var(--border-width) solid var(--black);
 }
 
-
 .board div {
   position: relative;
+}
+
+.board .cell {
   width: var(--cell-size);
   height: var(--cell-size);
 }
 
-.board .cell {
+.cell.dark {
   background: var(--black);
 }
 
@@ -63,7 +65,7 @@ main {
 .horisontal dd {
   position: absolute;
   bottom: calc(var(--border-width) * -6);
-  left: calc(50% - 9px);
+  left: calc(50% - 6px);
 }
 
 .vertical span {
@@ -72,21 +74,18 @@ main {
   bottom: calc(50% - 9px);
 }
 
-[data-alien]::after, [data-friend]::after {
-  content: '';
+.alien, .friend {
   position: absolute;
-  display: block;
   border-radius: 50%;
   width: var(--checker-size);
   height: var(--checker-size);
-  top: calc(50% - var(--checker-size) / 2);
-  left: calc(50% - var(--checker-size) / 2);
+  margin: calc(var(--cell-size) * 0.1);
   z-index: 1;
 }
-[data-alien]::after {
+.alien {
   background: var(--checker-black)
 
 }
-[data-friend]::after {
+.friend {
   background: var(--checker-white);
 }

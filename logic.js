@@ -13,9 +13,20 @@ const defaultArrangements = {
     'b6', 'd6', 'f6', 'h6',
   ]
 };
+const state = {
+  fields: null,
+  turn: FRIEND
+};
 
 const handleClick = ({ target }) => {
-  target.classList.add('animate');
+  const parent = target.parentNode;
+  if(parent.classList.contains('ready')) {
+    return;
+  }
+  state.fields.forEach(field => field.classList.remove('ready'));
+  if(target.dataset[state.turn]) {
+    parent.classList.add('ready');
+  }
 };
 
 const putCheckerToTheBoard = (name, field, index) => {
@@ -30,9 +41,9 @@ const putCheckerToTheBoard = (name, field, index) => {
 };
 
 function init() {
-  const fields = document.querySelectorAll('[id]');
+  state.fields = document.querySelectorAll('[id]');
 
-  fields.forEach((field, index) => {
+  state.fields.forEach((field, index) => {
     putCheckerToTheBoard(FRIEND, field, index);
     putCheckerToTheBoard(ALIEN, field, index);
   })

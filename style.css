@@ -10,6 +10,15 @@
   --border-width: 5px;
 }
 
+@keyframes pulse {
+  0% {
+    box-shadow: 0px 0px 15px 5px rgba(86,255,79,0.75);
+  }
+  100% {
+    box-shadow: 0px 0px 15px 15px rgba(60,255,11,0.75);
+  }
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -55,6 +64,11 @@ main {
   background: var(--black);
 }
 
+.cell.ready .alien,
+.cell.ready .friend {
+  animation: pulse 1s ease-in-out 0s infinite alternate backwards;
+}
+
 .horisontal, .vertical {
   font-size: 18px;
   font-weight: bold;
@@ -80,6 +94,7 @@ main {
   width: var(--checker-size);
   height: var(--checker-size);
   margin: calc(var(--cell-size) * 0.1);
+  cursor: pointer;
   z-index: 1;
 }
 .alien {

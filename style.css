@@ -24,7 +24,7 @@ body {
 }
 
 main {
-  margin: 150px auto;
+  margin: calc(var(--cell-size) * 1.5) auto;
   border: calc(var(--border-width) * 6) solid var(--white);
   width: calc((var(--cell-size) * 8) + (var(--border-width) * 2));
 }

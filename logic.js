@@ -74,8 +74,11 @@ const calculatePossibleSteps = (id) => {
     });
 
   // Add 'highlight' function and transform 'res' to functor
-  res['highlight'] = () => highlightPossibleSteps(res);
+  Object.defineProperty(res, 'highlight', {
+    value: () => highlightPossibleSteps(res),
+  });
 
+  console.log(Object.getOwnPropertyDescriptors(res));
   return res;
 };
 

@@ -118,9 +118,13 @@ main {
   border: 2px solid var(--green);
   box-sizing: border-box;
   cursor: pointer;
-  z-index: 10;  
+  z-index: 10;
 }
-
-.possible-attack::after {
+/* 
+.possible-attack:hover::after {
   border: 2px solid var(--red);
 }
+
+.possible-step:hover::after {
+  border: 2px solid var(--green);
+} */

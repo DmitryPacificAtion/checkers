@@ -1,6 +1,13 @@
 const FRIEND = 'friend';
 const ALIEN = 'alien';
 
+const players = {
+  0: FRIEND,
+  1: ALIEN,
+  [FRIEND]: 0,
+  [ALIEN]: 1
+};
+
 const defaultArrangements = {
   [FRIEND]: [
     'a1', 'c1', 'e1', 'g1',
@@ -8,17 +15,18 @@ const defaultArrangements = {
     'a3', 'c3', 'e3', 'g3',
   ],
   [ALIEN]: [
-    'b8', 'd8', 'f8', 'h8',
+    'f4', 'b8', 'd8', 'f8', 'h8',
     'a7', 'c7', 'e7', 'g7',
     'b6', 'd6', 'f6', 'h6',
   ]
 };
 const state = {
   fields: null,
-  turn: FRIEND,
+  turn: players[0],
 };
 
 const _do = (...args) => f => f(...args);
+const oppositePlayer = () => players[+!players[state.turn]];
 
 const getNewChar = n => String.fromCharCode(n);
 
@@ -38,8 +46,14 @@ const directions = {
   tr: topRight,
   tl: topLeft,
   bl: bottomLeft,
-  br: bottomRight,
+  br: bottomRight
 };
+
+Object.defineProperty(directions, 'diff', {
+  value: (a, b) => {
+    // TBD found dif
+  },
+});
 
 const posibleNearbyIds = (coords) => (n) => Object.values(directions).map(_do(coords, n));
 
@@ -49,11 +63,17 @@ const calculatePossibleSteps = (id) => {
   // const res = variants.map(id => state.fields.find(i => i.id === id)).filter(j => j && !j.hasChildNodes());
   const res = posibleNearbyIds(id.split(''))(1)
     .map(id => document.getElementById(id))
-    .filter(i => i && !i.lastChild?.classList?.contains(state.turn));
-    // .map(i => {
-    //   console.log('i', i);
-    // });
-  
+    .filter(i => i && !i.lastChild?.classList?.contains(state.turn))
+    // .map(i => i.lastChild?.classList?.contains(state.turn));
+    .map(i => {
+      const hasOpposite = i.lastChild?.classList?.contains(oppositePlayer());
+      if(hasOpposite) {
+        // TDB check nex one behind the enemy
+      }
+      return i;
+    });
+
+  // Add 'highlight' function and transform 'res' to functor
   res['highlight'] = () => highlightPossibleSteps(res);
 
   return res;

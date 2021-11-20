@@ -1,6 +1,8 @@
 :root {
   --black: #393939;
   --white: #efecd6;
+  --green: rgba(86,255,79,0.75);
+  --red: rgb(243 46 46);
   --cell-size: 60px;
   --checker-size: calc(var(--cell-size) * 0.8);
   --checker-red: radial-gradient(circle, rgb(243 46 46) 10%, rgb(161 36 36) 40%, rgb(181 36 36) 45%, rgb(205 66 66) 65%, rgb(151 26 26) 70%);
@@ -12,7 +14,7 @@
 
 @keyframes pulse {
   0% {
-    box-shadow: 0px 0px 15px 5px rgba(86,255,79,0.75);
+    box-shadow: 0px 0px 15px 5px var(--green);
   }
   100% {
     box-shadow: 0px 0px 15px 15px rgba(60,255,11,0.75);
@@ -103,4 +105,22 @@ main {
 }
 .friend {
   background: var(--checker-white);
+}
+
+.possible-step::after, .possible-attack::after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 2px solid var(--green);
+  box-sizing: border-box;
+  cursor: pointer;
+  z-index: 10;  
+}
+
+.possible-attack::after {
+  border: 2px solid var(--red);
 }

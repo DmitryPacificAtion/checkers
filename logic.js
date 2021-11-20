@@ -15,17 +15,67 @@ const defaultArrangements = {
 };
 const state = {
   fields: null,
-  turn: FRIEND
+  turn: FRIEND,
+};
+
+const _do = (...args) => f => f(...args);
+
+const getNewChar = n => String.fromCharCode(n);
+
+const topRight = (coords, n) =>
+  coords.map(p => getNewChar(p.charCodeAt() + n)).join('');
+
+const topLeft = ([x, y], n) => 
+  [getNewChar(x.charCodeAt() + n), getNewChar(y.charCodeAt() - n)].join('');
+
+const bottomLeft = (coords, n) =>
+  coords.map(p => getNewChar(p.charCodeAt() - n)).join('');
+
+const bottomRight = ([x, y], n) =>
+  [getNewChar(x.charCodeAt() - n), getNewChar(y.charCodeAt() + n)].join('');
+
+const directions = {
+  tr: topRight,
+  tl: topLeft,
+  bl: bottomLeft,
+  br: bottomRight,
+};
+
+const posibleNearbyIds = (coords) => (n) => Object.values(directions).map(_do(coords, n));
+
+const highlightPossibleSteps = steps => steps.map(step => step.classList.add('possible-step'));
+
+const calculatePossibleSteps = (id) => {
+  // const res = variants.map(id => state.fields.find(i => i.id === id)).filter(j => j && !j.hasChildNodes());
+  const res = posibleNearbyIds(id.split(''))(1)
+    .map(id => document.getElementById(id))
+    .filter(i => i && !i.lastChild?.classList?.contains(state.turn));
+    // .map(i => {
+    //   console.log('i', i);
+    // });
+  
+  res['highlight'] = () => highlightPossibleSteps(res);
+
+  return res;
 };
 
 const handleClick = ({ target }) => {
-  const parent = target.parentNode;
+  const { parentNode: parent } = target;
+
   if(parent.classList.contains('ready')) {
+    parent.classList.remove('ready')
+    state.fields.forEach(field => field.classList.remove('possible-step', 'possible-attack'));
     return;
   }
-  state.fields.forEach(field => field.classList.remove('ready'));
+
   if(target.dataset[state.turn]) {
+    console.time('select-checker');
+    state.fields.forEach(field => {
+      field.classList.remove('ready', 'possible-step', 'possible-attack');
+    });
     parent.classList.add('ready');
+    calculatePossibleSteps(parent.id).highlight();
+    console.timeEnd('select-checker');
   }
 };
 
@@ -41,12 +91,14 @@ const putCheckerToTheBoard = (name, field, index) => {
 };
 
 function init() {
-  state.fields = document.querySelectorAll('[id]');
+  console.time('init');
+  state.fields = Object.values(document.querySelectorAll('[id]'));
 
   state.fields.forEach((field, index) => {
     putCheckerToTheBoard(FRIEND, field, index);
     putCheckerToTheBoard(ALIEN, field, index);
   })
+  console.timeEnd('init');
 };
 
 (function() {

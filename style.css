@@ -116,14 +116,14 @@ main {
   right: 0;
   bottom: 0;
   box-sizing: border-box;
-  cursor: pointer;
   z-index: 10;
 }
 .possible-step::after {
-  border: 2px solid var(--green);
+  border: 3px solid var(--green);
+  cursor: pointer;
 }
 .possible-attack::after {
-  border: 2px solid var(--red);
+  border: 3px solid var(--red);
 }
 
 /* 

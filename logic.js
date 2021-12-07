@@ -90,29 +90,38 @@ const highlightPossibleSteps = steps => steps.map(step => step?.classList?.add('
 
 const calculatePossibleSteps = (id) => {
   // const res = variants.map(id => state.fields.find(i => i.id === id)).filter(j => j && !j.hasChildNodes());
-  const res = posibleNearbyIds(getCoords(id))(1)
+  const posibleSteps = posibleNearbyIds(getCoords(id))(1)
     .map(id => document.getElementById(id))
     .filter(i => i && !i.lastChild?.classList?.contains(state.turn))
     // .map(i => i.lastChild?.classList?.contains(state.turn));
     .map(i => {
       const hasOpposite = i.lastChild?.classList?.contains(oppositePlayer());
       if (hasOpposite) {
-        // TDB check nex one behind the enemy
         const moveForward = directions.diff(i.id, id);
         const moveToId = moveForward(getCoords(i.id), 1);
         const nextCell = document.getElementById(moveToId);
         nextCell && i.classList.add('possible-attack');
-        return nextCell;
+        return nextCell
       }
+      return i;
+    })
+    .filter(i => i)
+    .map(i => {
+      i.addEventListener('click', ({ target }) => {
+        console.log('move', target.id);
+      })
       return i;
     });
 
   // Add 'highlight' function and transform 'res' to functor
-  Object.defineProperty(res, 'highlight', {
-    value: () => highlightPossibleSteps(res),
+  Object.defineProperty(posibleSteps, 'highlight', {
+    value: () => {
+      highlightPossibleSteps(posibleSteps);
+      return posibleSteps;
+    }
   });
 
-  return res;
+  return posibleSteps;
 };
 
 const handleClick = ({ target }) => {
@@ -130,7 +139,8 @@ const handleClick = ({ target }) => {
       field.classList.remove('ready', 'possible-step', 'possible-attack');
     });
     parent.classList.add('ready');
-    calculatePossibleSteps(parent.id).highlight();
+    const posibleSteps = calculatePossibleSteps(parent.id).highlight();
+    console.log('posibleSteps', posibleSteps);
     console.timeEnd('select-checker');
   }
 };

@@ -66,7 +66,7 @@ const directions = {
   br: bottomRight
 };
 
-const convertToDirections = ([x, y]) => {
+const convertDiffToDirection = ([x, y]) => {
   if (x > 0 && y > 0) {
     return directions.tr;
   } else if (x < 0 && y > 0) {
@@ -81,43 +81,44 @@ const convertToDirections = ([x, y]) => {
 }
 
 Object.defineProperty(directions, 'diff', {
-  value: (a, b) => convertToDirections(div([getCoords(a), getCoords(b)])),
+  value: (a, b) => div([getCoords(a), getCoords(b)]),
 });
+
+const moveHandler = parent => ({ target }) => {
+  const src = parent.querySelector(`.${state.turn}`);
+
+  console.log('scr, target', target);
+};
 
 const posibleNearbyIds = (coords) => (n) => Object.values(directions).map(_do(coords, n));
 
-const highlightPossibleSteps = steps => steps.map(step => step?.classList?.add('possible-step'));
+const highlightPossibleSteps = steps => steps.map(step => {
+  step?.classList?.add('possible-step');
+  return step;
+});
 
 const calculatePossibleSteps = (id) => {
   // const res = variants.map(id => state.fields.find(i => i.id === id)).filter(j => j && !j.hasChildNodes());
   const posibleSteps = posibleNearbyIds(getCoords(id))(1)
     .map(id => document.getElementById(id))
     .filter(i => i && !i.lastChild?.classList?.contains(state.turn))
-    // .map(i => i.lastChild?.classList?.contains(state.turn));
     .map(i => {
       const hasOpposite = i.lastChild?.classList?.contains(oppositePlayer());
       if (hasOpposite) {
-        const moveForward = directions.diff(i.id, id);
-        const moveToId = moveForward(getCoords(i.id), 1);
-        const nextCell = document.getElementById(moveToId);
+        const defineNextDirection = convertDiffToDirection(directions.diff(i.id, id));
+        const definedNextId = defineNextDirection(getCoords(i.id), 1);
+        const nextCell = document.getElementById(definedNextId);
         nextCell && i.classList.add('possible-attack');
         return nextCell
       }
       return i;
     })
-    .filter(i => i)
-    .map(i => {
-      i.addEventListener('click', ({ target }) => {
-        console.log('move', target.id);
-      })
-      return i;
-    });
+    .filter(i => i);
 
   // Add 'highlight' function and transform 'res' to functor
   Object.defineProperty(posibleSteps, 'highlight', {
     value: () => {
-      highlightPossibleSteps(posibleSteps);
-      return posibleSteps;
+      return highlightPossibleSteps(posibleSteps);
     }
   });
 
@@ -137,10 +138,11 @@ const handleClick = ({ target }) => {
     console.time('select-checker');
     state.fields.forEach(field => {
       field.classList.remove('ready', 'possible-step', 'possible-attack');
+      field.removeEventListener('click', moveHandler(parent));
     });
     parent.classList.add('ready');
     const posibleSteps = calculatePossibleSteps(parent.id).highlight();
-    console.log('posibleSteps', posibleSteps);
+    posibleSteps.map(step => step.addEventListener('click', moveHandler(parent)));
     console.timeEnd('select-checker');
   }
 };

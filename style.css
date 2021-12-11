@@ -35,6 +35,7 @@ body {
 }
 
 main {
+  position: relative;
   margin: calc(var(--cell-size) * 1.5) auto;
   border: calc(var(--border-width) * 6) solid var(--white);
   width: calc((var(--cell-size) * 8) + (var(--border-width) * 2));
@@ -72,22 +73,38 @@ main {
 }
 
 .horisontal, .vertical {
+  position: absolute;
+  display: flex;
+  width: 100%;
   font-size: 18px;
   font-weight: bold;
   font-family: 'Arial';
   color: #6c542f;
+  align-items: center;
+  justify-content: center;
 }
 
 .horisontal dd {
-  position: absolute;
+  height: calc(var(--cell-size) + var(--border-width) * 2);
   bottom: calc(var(--border-width) * -6);
   left: calc(50% - 6px);
 }
 
-.vertical span {
-  position: absolute;
+.vertical {
+  bottom: -18px;
+  flex-direction: row;
+}
+.vertical div {
+  flex: 1 0 var(--checker-size);
   left: calc(var(--border-width) * -4);
   bottom: calc(50% - 9px);
+  text-align: center;
+}
+.vertical div:first-child {
+  border-left: var(--border-width) solid transparent;
+}
+.vertical div:last-child {
+  border-right: var(--border-width) solid transparent;
 }
 
 .alien, .friend {

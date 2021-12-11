@@ -1,30 +1,37 @@
-const FRIEND = 'friend';
-const ALIEN = 'alien';
+const CONSTANTS = {
+  FRIEND: 'friend',
+  ALIEN: 'alien',
+  READY: 'ready',
+  START_MOVEMENT: 'start-movement',
+  END_MOVEMENT: 'end-movement',
+  POSSIBLE_ATTACK: 'possible-attack',
+  POSSIBLE_STEP: 'possible-step',
+};
 
 const players = {
-  0: FRIEND,
-  1: ALIEN,
-  [FRIEND]: 0,
-  [ALIEN]: 1
+  0: CONSTANTS.FRIEND,
+  1: CONSTANTS.ALIEN,
+  [CONSTANTS.FRIEND]: 0,
+  [CONSTANTS.ALIEN]: 1
 };
 
 const defaultArrangements = {
-  [FRIEND]: [
+  [CONSTANTS.FRIEND]: [
     'a7', 'g7', 'e1',
     'b2', 'h2',
   ],
-  [ALIEN]: [
+  [CONSTANTS.ALIEN]: [
     'b8', 'f8', 'h8',
     'b6', 'f6', 'h6',
     'a3', 'c3', 'f2',
     'a1', 'c1', 'g1'
   ],
-  // [FRIEND]: [
+  // [CONSTANTS.FRIEND]: [
   //   'a1', 'c1', 'e1', 'g1',
   //   'b2', 'd2', 'f2', 'h2',
   //   'a3', 'c3', 'e3', 'g3',
   // ],
-  // [ALIEN]: [
+  // [CONSTANTS.ALIEN]: [
   //   'f4', 'b8', 'd8', 'f8', 'h8',
   //   'a7', 'c7', 'e7', 'g7',
   //   'b6', 'd6', 'f6', 'h6',
@@ -86,14 +93,15 @@ Object.defineProperty(directions, 'diff', {
 
 const moveHandler = parent => ({ target }) => {
   const src = parent.querySelector(`.${state.turn}`);
-
-  console.log('scr, target', target);
+  src.classList.remove(CONSTANTS.READY);
+  src.classList.add(CONSTANTS.START_MOVEMENT);
+  console.log('scr, target', parent, src, target);
 };
 
 const posibleNearbyIds = (coords) => (n) => Object.values(directions).map(_do(coords, n));
 
 const highlightPossibleSteps = steps => steps.map(step => {
-  step?.classList?.add('possible-step');
+  step?.classList?.add(CONSTANTS.POSSIBLE_STEP);
   return step;
 });
 
@@ -108,7 +116,7 @@ const calculatePossibleSteps = (id) => {
         const defineNextDirection = convertDiffToDirection(directions.diff(i.id, id));
         const definedNextId = defineNextDirection(getCoords(i.id), 1);
         const nextCell = document.getElementById(definedNextId);
-        nextCell && i.classList.add('possible-attack');
+        nextCell && i.classList.add(CONSTANTS.POSSIBLE_ATTACK);
         return nextCell
       }
       return i;
@@ -128,19 +136,19 @@ const calculatePossibleSteps = (id) => {
 const handleClick = ({ target }) => {
   const { parentNode: parent } = target;
 
-  if(parent.classList.contains('ready')) {
-    parent.classList.remove('ready')
-    state.fields.forEach(field => field.classList.remove('possible-step', 'possible-attack'));
+  if(parent.classList.contains(CONSTANTS.READY)) {
+    parent.classList.remove(CONSTANTS.READY)
+    state.fields.forEach(field => field.classList.remove(CONSTANTS.POSSIBLE_STEP, CONSTANTS.POSSIBLE_ATTACK));
     return;
   }
 
   if(target.dataset[state.turn]) {
     console.time('select-checker');
     state.fields.forEach(field => {
-      field.classList.remove('ready', 'possible-step', 'possible-attack');
+      field.classList.remove(CONSTANTS.READY, CONSTANTS.POSSIBLE_STEP, CONSTANTS.POSSIBLE_ATTACK);
       field.removeEventListener('click', moveHandler(parent));
     });
-    parent.classList.add('ready');
+    parent.classList.add(CONSTANTS.READY);
     const posibleSteps = calculatePossibleSteps(parent.id).highlight();
     posibleSteps.map(step => step.addEventListener('click', moveHandler(parent)));
     console.timeEnd('select-checker');
@@ -163,8 +171,8 @@ function init() {
   state.fields = Object.values(document.querySelectorAll('[id]'));
 
   state.fields.forEach((field, index) => {
-    putCheckerToTheBoard(FRIEND, field, index);
-    putCheckerToTheBoard(ALIEN, field, index);
+    putCheckerToTheBoard(CONSTANTS.FRIEND, field, index);
+    putCheckerToTheBoard(CONSTANTS.ALIEN, field, index);
   })
   console.timeEnd('init');
 };

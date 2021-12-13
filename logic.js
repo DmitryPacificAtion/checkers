@@ -59,6 +59,15 @@ const div = ([x, y]) => {
 const addWith = ([x, y], n) => [add([x, n]), add([y, n])];
 const divWith = ([x, y], n) => [div([x, n]), div([y, n])];
 
+const createChecker = ([xCoord, yCoord], size) => {
+  const div = document.createElement('div');
+  const directionX = xCoord > 0 ? 'top' : 'bottom';
+  const directionY = yCoord > 0 ? 'right' : 'left';
+  div.setAttribute('class', state.turn);
+  div.setAttribute('style', `position: absolute; ${directionX}: ${xCoord * size}px; ${directionY}: ${yCoord * size}px`);
+  return div;
+};
+
 const oppositePlayer = () => players[+!players[state.turn]];
 
 const topRight = (coords, n) => addWith(coords, n).map(getCharFrom).join('');
@@ -95,6 +104,9 @@ const moveHandler = parent => ({ target }) => {
   const src = parent.querySelector(`.${state.turn}`);
   src.classList.remove(CONSTANTS.READY);
   src.classList.add(CONSTANTS.START_MOVEMENT);
+  target.classList.add(CONSTANTS.END_MOVEMENT);
+  const checker = createChecker(directions.diff(parent.id, target.id), target.clientWidth);
+  target.appendChild(checker);
   console.log('scr, target', parent, src, target);
 };
 

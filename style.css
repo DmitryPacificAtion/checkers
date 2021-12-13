@@ -36,7 +36,7 @@ body {
 
 main {
   position: relative;
-  margin: calc(var(--cell-size) * 1.5) auto;
+  margin: calc(var(--cell-size)) auto;
   border: calc(var(--border-width) * 6) solid var(--white);
   width: calc((var(--cell-size) * 8) + (var(--border-width) * 2));
 }

@@ -39,6 +39,7 @@ const defaultArrangements = {
 };
 const state = {
   fields: null,
+  selectedCheckerId: null,
   turn: players[0],
 };
 
@@ -46,6 +47,8 @@ const _do = (...args) => f => f(...args);
 const getCharAt = p => p.toString().charCodeAt();
 const getCoords = id => id.split('').map(getCharAt);
 const getCharFrom = n => String.fromCharCode(n);
+const getFieldById = id => state.fields[id];
+
 const add = ([x, y]) => x + y;
 const div = ([x, y]) => {
   if (Array.isArray(x) && Array.isArray(y)) {
@@ -58,22 +61,30 @@ const div = ([x, y]) => {
 
 const addWith = ([x, y], n) => [add([x, n]), add([y, n])];
 const divWith = ([x, y], n) => [div([x, n]), div([y, n])];
-
-const createChecker = ([xCoord, yCoord], size) => {
-  const div = document.createElement('div');
-  const directionX = xCoord > 0 ? 'top' : 'bottom';
-  const directionY = yCoord > 0 ? 'right' : 'left';
-  div.setAttribute('class', state.turn);
-  div.setAttribute('style', `position: absolute; ${directionX}: ${xCoord * size}px; ${directionY}: ${yCoord * size}px`);
-  return div;
-};
-
 const oppositePlayer = () => players[+!players[state.turn]];
-
 const topRight = (coords, n) => addWith(coords, n).map(getCharFrom).join('');
 const topLeft = ([x, y], n) => [div([x, n]), add([y, n])].map(getCharFrom).join('');
 const bottomLeft = (coords, n) => divWith(coords, n).map(getCharFrom).join('');
 const bottomRight = ([x, y], n) => [add([x, n]), div([y, n])].map(getCharFrom).join('');
+
+const moveHandler = ({ target }) => {
+  const { selectedCheckerId, fields } = state;
+  const source = fields[selectedCheckerId];
+
+  source.lastChild.remove(CONSTANTS.READY);
+  // const checker = createChecker(directions.diff(source.id, target.id), target.clientWidth);
+  // source.lastChild.add(CONSTANTS.START_MOVEMENT);
+  target.appendChild(source.lastChild);
+
+  // console.log('scr, target', checker.getAttribute('style'));
+};
+
+const clearPrevSelectedField = () => {
+  Object.values(state.fields).forEach(step => {
+    step.removeEventListener('click', moveHandler);
+    step.classList.remove(CONSTANTS.READY, CONSTANTS.POSSIBLE_STEP, CONSTANTS.POSSIBLE_ATTACK)
+  })
+};
 
 const directions = {
   tr: topRight,
@@ -96,97 +107,96 @@ const convertDiffToDirection = ([x, y]) => {
   }
 }
 
+const defineNextCell = (field) => {
+  const { id: fieldId } = field;
+  const nextCell = getFieldById(convertDiffToDirection(
+    directions.diff(fieldId, state.selectedCheckerId)
+    )(getCoords(fieldId), 1)
+  );
+  // highlight checker for attack
+  if (nextCell) {
+    field.classList.add(CONSTANTS.POSSIBLE_ATTACK);
+  }
+  return nextCell;
+}
+
 Object.defineProperty(directions, 'diff', {
   value: (a, b) => div([getCoords(a), getCoords(b)]),
 });
 
-const moveHandler = parent => ({ target }) => {
-  const src = parent.querySelector(`.${state.turn}`);
-  src.classList.remove(CONSTANTS.READY);
-  src.classList.add(CONSTANTS.START_MOVEMENT);
-  target.classList.add(CONSTANTS.END_MOVEMENT);
-  const checker = createChecker(directions.diff(parent.id, target.id), target.clientWidth);
-  target.appendChild(checker);
-  console.log('scr, target', parent, src, target);
-};
-
-const posibleNearbyIds = (coords) => (n) => Object.values(directions).map(_do(coords, n));
+const posibleNearbyIds = coords => n =>
+  Object.values(directions).map(_do(coords, n)).filter(ch => state.fields[ch]);
 
 const highlightPossibleSteps = steps => steps.map(step => {
-  step?.classList?.add(CONSTANTS.POSSIBLE_STEP);
+  step.addEventListener('click', moveHandler)
+  step.classList.add(CONSTANTS.POSSIBLE_STEP);
   return step;
-});
+})
 
-const calculatePossibleSteps = (id) => {
-  // const res = variants.map(id => state.fields.find(i => i.id === id)).filter(j => j && !j.hasChildNodes());
+const showPossibleSteps = () => {
+  const { selectedCheckerId: id } = state;
   const posibleSteps = posibleNearbyIds(getCoords(id))(1)
-    .map(id => document.getElementById(id))
-    .filter(i => i && !i.lastChild?.classList?.contains(state.turn))
-    .map(i => {
-      const hasOpposite = i.lastChild?.classList?.contains(oppositePlayer());
-      if (hasOpposite) {
-        const defineNextDirection = convertDiffToDirection(directions.diff(i.id, id));
-        const definedNextId = defineNextDirection(getCoords(i.id), 1);
-        const nextCell = document.getElementById(definedNextId);
-        nextCell && i.classList.add(CONSTANTS.POSSIBLE_ATTACK);
-        return nextCell
-      }
-      return i;
+    .map(getFieldById)
+    .map(field => {
+      const hasOpposite = field.lastChild?.classList.contains(oppositePlayer());
+      return hasOpposite ? defineNextCell(field) : field;
     })
-    .filter(i => i);
+  .filter(i => i?.id);
+  // Add 'highlight' function and transform 'posibleSteps' to functor
+  // Object.defineProperty(posibleSteps, 'highlight', {
+  //   value: () => {
+  //     return highlightPossibleSteps(posibleSteps);
+  //   }
+  // });
 
-  // Add 'highlight' function and transform 'res' to functor
-  Object.defineProperty(posibleSteps, 'highlight', {
-    value: () => {
-      return highlightPossibleSteps(posibleSteps);
-    }
-  });
-
-  return posibleSteps;
+  console.log('posibleSteps', posibleSteps);
+  return highlightPossibleSteps(posibleSteps);
 };
 
-const handleClick = ({ target }) => {
-  const { parentNode: parent } = target;
+const createChecker = (name, index) => {
 
-  if(parent.classList.contains(CONSTANTS.READY)) {
-    parent.classList.remove(CONSTANTS.READY)
-    state.fields.forEach(field => field.classList.remove(CONSTANTS.POSSIBLE_STEP, CONSTANTS.POSSIBLE_ATTACK));
-    return;
-  }
+  const onClick = ({ target }) => {
+    const { parentNode: cell } = target;
+    if (state.fields[state.selectedCheckerId]) {
+      clearPrevSelectedField();
+    }
+    state.selectedCheckerId = cell.id;
 
-  if(target.dataset[state.turn]) {
-    console.time('select-checker');
-    state.fields.forEach(field => {
-      field.classList.remove(CONSTANTS.READY, CONSTANTS.POSSIBLE_STEP, CONSTANTS.POSSIBLE_ATTACK);
-      field.removeEventListener('click', moveHandler(parent));
-    });
-    parent.classList.add(CONSTANTS.READY);
-    const posibleSteps = calculatePossibleSteps(parent.id).highlight();
-    posibleSteps.map(step => step.addEventListener('click', moveHandler(parent)));
-    console.timeEnd('select-checker');
-  }
+    if(target.dataset[state.turn]) {
+      console.time('select-checker');
+      cell.classList.add(CONSTANTS.READY);
+      showPossibleSteps();
+      console.timeEnd('select-checker');
+    }
+  };
+
+  const div = document.createElement('div');
+  div.addEventListener('click', onClick);
+
+  div.classList.add(name);
+  div.setAttribute(`data-${name}`, index);
+  return div;
 };
 
 const putCheckerToTheBoard = (name, field, index) => {
   if (defaultArrangements[name].includes(field.id)) {
-    const checker = document.createElement('div');
-    checker.addEventListener('click', handleClick);
-
-    checker.classList.add(name);
-    checker.setAttribute(`data-${name}`, index);
+    const checker = createChecker(name, index);
     field.appendChild(checker);
   }
 };
 
 function init() {
   console.time('init');
-  state.fields = Object.values(document.querySelectorAll('[id]'));
+  state.fields = Object.values(document.querySelectorAll('.cell.dark'))
+    .reduce((acc, cur) => {
+      acc[cur.id] = cur;
+      return acc;
+    }, {});
 
-  state.fields.forEach((field, index) => {
+  Object.values(state.fields).forEach((field, index) => {
     putCheckerToTheBoard(CONSTANTS.FRIEND, field, index);
     putCheckerToTheBoard(CONSTANTS.ALIEN, field, index);
-  })
-  console.timeEnd('init');
+  });
 };
 
 (function() {

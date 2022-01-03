@@ -18,6 +18,7 @@ const players = {
 const defaultArrangements = {
   [CONSTANTS.FRIEND]: [
     'a7', 'g7', 'e1',
+    'b4', 'c5', 'e3',
     'b2', 'h2',
   ],
   [CONSTANTS.ALIEN]: [
@@ -62,28 +63,40 @@ const div = ([x, y]) => {
 const addWith = ([x, y], n) => [add([x, n]), add([y, n])];
 const divWith = ([x, y], n) => [div([x, n]), div([y, n])];
 const oppositePlayer = () => players[+!players[state.turn]];
+const hasOpposite = (field) => field?.lastChild?.classList.contains(oppositePlayer());
 const topRight = (coords, n) => addWith(coords, n).map(getCharFrom).join('');
 const topLeft = ([x, y], n) => [div([x, n]), add([y, n])].map(getCharFrom).join('');
 const bottomLeft = (coords, n) => divWith(coords, n).map(getCharFrom).join('');
 const bottomRight = ([x, y], n) => [add([x, n]), div([y, n])].map(getCharFrom).join('');
-
-const moveHandler = ({ target }) => {
-  const { selectedCheckerId, fields } = state;
-  const source = fields[selectedCheckerId];
-
-  source.lastChild.remove(CONSTANTS.READY);
-  // const checker = createChecker(directions.diff(source.id, target.id), target.clientWidth);
-  // source.lastChild.add(CONSTANTS.START_MOVEMENT);
-  target.appendChild(source.lastChild);
-
-  // console.log('scr, target', checker.getAttribute('style'));
-};
 
 const clearPrevSelectedField = () => {
   Object.values(state.fields).forEach(step => {
     step.removeEventListener('click', moveHandler);
     step.classList.remove(CONSTANTS.READY, CONSTANTS.POSSIBLE_STEP, CONSTANTS.POSSIBLE_ATTACK)
   })
+};
+
+const moveHandler = ({ target }) => {
+  const { selectedCheckerId, fields } = state;
+  const source = fields[selectedCheckerId];
+
+  // console.log('target', target);
+  // console.log('source', source);
+  // source.lastChild.classList.remove(CONSTANTS.READY);
+  // source.lastChild.classList.add(CONSTANTS.START_MOVEMENT);
+  // // source.lastChild.setAttribute('style', 'transform: translate(0, 0); translate: 0.5s ease transform');
+  // const moveToStyles = directions.diff(source.id, target.id).map(i => {
+  //   // console.log('i', i, i * target.clientWidth);
+  //   return i * target.clientWidth;
+  // }).join('px,');
+  // // source.lastChild.setAttribute('style', `transform: translate(${moveToStyles}px)`);
+
+  // // console.log('directions', target.clientWidth);
+  // // const checker = createChecker(directions.diff(source.id, target.id), target.clientWidth);
+  // // source.lastChild.add(CONSTANTS.START_MOVEMENT);
+  // setTimeout(() => target.appendChild(source.lastChild));
+  // clearPrevSelectedField();
+  // console.log('scr, target', checker.getAttribute('style'));
 };
 
 const directions = {
@@ -109,15 +122,19 @@ const convertDiffToDirection = ([x, y]) => {
 
 const defineNextCell = (field) => {
   const { id: fieldId } = field;
-  const nextCell = getFieldById(convertDiffToDirection(
-    directions.diff(fieldId, state.selectedCheckerId)
+  const nextCell = getFieldById(
+    convertDiffToDirection(
+      directions.diff(fieldId, state.selectedCheckerId)
     )(getCoords(fieldId), 1)
   );
-  // highlight checker for attack
-  if (nextCell) {
+
+  if (nextCell && !nextCell.lastChild) {
+    // highlight checker for attack
     field.classList.add(CONSTANTS.POSSIBLE_ATTACK);
+    return nextCell;
   }
-  return nextCell;
+
+  return null;
 }
 
 Object.defineProperty(directions, 'diff', {
@@ -133,15 +150,23 @@ const highlightPossibleSteps = steps => steps.map(step => {
   return step;
 })
 
-const showPossibleSteps = () => {
+const definePossibleSteps = () => {
   const { selectedCheckerId: id } = state;
-  const posibleSteps = posibleNearbyIds(getCoords(id))(1)
-    .map(getFieldById)
+  const posibleStepsIds = posibleNearbyIds(getCoords(id))(1)
+    .map(stedId => getFieldById(stedId))
+    .filter(f => f)
     .map(field => {
-      const hasOpposite = field.lastChild?.classList.contains(oppositePlayer());
-      return hasOpposite ? defineNextCell(field) : field;
+        if (field.lastChild) {
+          const enemy = hasOpposite(field);
+          const res = enemy ? defineNextCell(field) : null;
+          console.log('res', res);
+          return res;
+        }
+
+      return field;
     })
-  .filter(i => i?.id);
+    .filter(f => f);
+
   // Add 'highlight' function and transform 'posibleSteps' to functor
   // Object.defineProperty(posibleSteps, 'highlight', {
   //   value: () => {
@@ -149,8 +174,8 @@ const showPossibleSteps = () => {
   //   }
   // });
 
-  console.log('posibleSteps', posibleSteps);
-  return highlightPossibleSteps(posibleSteps);
+  // console.log('posibleSteps', state.fields);
+  return highlightPossibleSteps(posibleStepsIds);
 };
 
 const createChecker = (name, index) => {
@@ -165,7 +190,7 @@ const createChecker = (name, index) => {
     if(target.dataset[state.turn]) {
       console.time('select-checker');
       cell.classList.add(CONSTANTS.READY);
-      showPossibleSteps();
+      definePossibleSteps();
       console.timeEnd('select-checker');
     }
   };

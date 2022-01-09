@@ -123,6 +123,7 @@ main {
   height: var(--checker-size);
   margin: calc(var(--cell-size) * 0.1);
   cursor: pointer;
+  opacity: 1;
   z-index: 1;
 }
 .alien {
@@ -150,6 +151,11 @@ main {
 }
 .possible-attack::after {
   border: 3px solid var(--red);
+}
+
+.remove-checker {
+  transition: opacity 500ms ease-out;
+  opacity: 0;
 }
 
 /* 

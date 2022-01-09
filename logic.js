@@ -72,35 +72,30 @@ const bottomRight = ([x, y], n) => [add([x, n]), div([y, n])].map(getCharFrom).j
 
 const clearPrevSelectedField = () => {
   Object.values(state.fields).forEach(step => {
-    step.removeEventListener('click', moveHandler);
-    step.classList.remove(CONSTANTS.READY, CONSTANTS.POSSIBLE_STEP, CONSTANTS.POSSIBLE_ATTACK)
+    if (step) {
+      step.removeEventListener('click', moveHandler);
+      step.classList.remove(CONSTANTS.READY, CONSTANTS.POSSIBLE_STEP, CONSTANTS.POSSIBLE_ATTACK)
+    }
   });
   state.kickedOffCheckerIds = [];
+  state.selectedCheckerId = null;
 };
 
 const moveHandler = ({ target }) => {
   const { selectedCheckerId, fields } = state;
   const source = fields[selectedCheckerId];
+  const enemyId = state.kickedOffCheckerIds[0];
+  const enemy = state.fields[enemyId];
+  if (enemy) {
+    state.fields[enemyId].lastChild.classList.add('remove-checker');
+    setTimeout(() => state.fields[enemyId].innerHTML = '', 500);
+  }
 
-  // console.log('target', target);
-  // console.log('source', source);
-  // source.lastChild.classList.remove(CONSTANTS.READY);
-  // source.lastChild.classList.add(CONSTANTS.START_MOVEMENT);
-  // // source.lastChild.setAttribute('style', 'transform: translate(0, 0); translate: 0.5s ease transform');
-  // const moveToStyles = directions.diff(source.id, target.id).map(i => {
-  //   // console.log('i', i, i * target.clientWidth);
-  //   return i * target.clientWidth;
-  // }).join('px,');
-  // // source.lastChild.setAttribute('style', `transform: translate(${moveToStyles}px)`);
-
-  // // console.log('directions', target.clientWidth);
-  // // const checker = createChecker(directions.diff(source.id, target.id), target.clientWidth);
-  // // source.lastChild.add(CONSTANTS.START_MOVEMENT);
-  setTimeout(() => target.appendChild(source.lastChild));
+  target.appendChild(source.lastChild);
   clearPrevSelectedField();
   state.turn = oppositePlayer();
 
-  console.log('scr, target', source, target);
+  console.log('state', state);
 };
 
 const directions = {

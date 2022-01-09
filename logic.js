@@ -41,6 +41,7 @@ const defaultArrangements = {
 const state = {
   fields: null,
   selectedCheckerId: null,
+  kickedOffCheckerIds: [],
   turn: players[0],
 };
 
@@ -73,7 +74,8 @@ const clearPrevSelectedField = () => {
   Object.values(state.fields).forEach(step => {
     step.removeEventListener('click', moveHandler);
     step.classList.remove(CONSTANTS.READY, CONSTANTS.POSSIBLE_STEP, CONSTANTS.POSSIBLE_ATTACK)
-  })
+  });
+  state.kickedOffCheckerIds = [];
 };
 
 const moveHandler = ({ target }) => {
@@ -94,9 +96,11 @@ const moveHandler = ({ target }) => {
   // // console.log('directions', target.clientWidth);
   // // const checker = createChecker(directions.diff(source.id, target.id), target.clientWidth);
   // // source.lastChild.add(CONSTANTS.START_MOVEMENT);
-  // setTimeout(() => target.appendChild(source.lastChild));
-  // clearPrevSelectedField();
-  // console.log('scr, target', checker.getAttribute('style'));
+  setTimeout(() => target.appendChild(source.lastChild));
+  clearPrevSelectedField();
+  state.turn = oppositePlayer();
+
+  console.log('scr, target', source, target);
 };
 
 const directions = {
@@ -129,8 +133,7 @@ const defineNextCell = (field) => {
   );
 
   if (nextCell && !nextCell.lastChild) {
-    // highlight checker for attack
-    field.classList.add(CONSTANTS.POSSIBLE_ATTACK);
+    state.kickedOffCheckerIds.push(fieldId);
     return nextCell;
   }
 
@@ -144,11 +147,14 @@ Object.defineProperty(directions, 'diff', {
 const posibleNearbyIds = coords => n =>
   Object.values(directions).map(_do(coords, n)).filter(ch => state.fields[ch]);
 
-const highlightPossibleSteps = steps => steps.map(step => {
-  step.addEventListener('click', moveHandler)
-  step.classList.add(CONSTANTS.POSSIBLE_STEP);
-  return step;
-})
+const highlightPossibleSteps = steps => {
+  state.kickedOffCheckerIds.map(id => state.fields[id].classList.add(CONSTANTS.POSSIBLE_ATTACK));
+
+  return steps.map(step => {
+    step.addEventListener('click', moveHandler)
+    step.classList.add(CONSTANTS.POSSIBLE_STEP);
+    return step;
+  })}
 
 const definePossibleSteps = () => {
   const { selectedCheckerId: id } = state;
@@ -158,9 +164,7 @@ const definePossibleSteps = () => {
     .map(field => {
         if (field.lastChild) {
           const enemy = hasOpposite(field);
-          const res = enemy ? defineNextCell(field) : null;
-          console.log('res', res);
-          return res;
+          return enemy ? defineNextCell(field) : null;
         }
 
       return field;
@@ -174,7 +178,6 @@ const definePossibleSteps = () => {
   //   }
   // });
 
-  // console.log('posibleSteps', state.fields);
   return highlightPossibleSteps(posibleStepsIds);
 };
 

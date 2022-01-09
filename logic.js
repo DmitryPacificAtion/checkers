@@ -94,8 +94,6 @@ const moveHandler = ({ target }) => {
   target.appendChild(source.lastChild);
   clearPrevSelectedField();
   state.turn = oppositePlayer();
-
-  console.log('state', state);
 };
 
 const directions = {
@@ -108,15 +106,17 @@ const directions = {
 const convertDiffToDirection = ([x, y]) => {
   if (x > 0 && y > 0) {
     return directions.tr;
-  } else if (x < 0 && y > 0) {
-      return directions.tl;
-  } else if (x > 0 && y < 0) {
-      return directions.br;
-  } else if (x < 0 && y < 0) {
-      return directions.bl;
-  } else {
-    return;
   }
+  if (x < 0 && y > 0) {
+    return directions.tl;
+  }
+  if (x > 0 && y < 0) {
+    return directions.br;
+  }
+  if (x < 0 && y < 0) {
+    return directions.bl;
+  }
+  return;
 }
 
 const defineNextCell = (field) => {
@@ -139,8 +139,16 @@ Object.defineProperty(directions, 'diff', {
   value: (a, b) => div([getCoords(a), getCoords(b)]),
 });
 
-const posibleNearbyIds = coords => n =>
-  Object.values(directions).map(_do(coords, n)).filter(ch => state.fields[ch]);
+const posibleNearbyIds = coords => n => {
+  let availableDirections = [];
+  if (state.turn === CONSTANTS.ALIEN) {
+    availableDirections = [directions.br, directions.bl];
+  } else {
+    availableDirections = [directions.tr, directions.tl];
+  }
+
+  return availableDirections.map(_do(coords, n)).filter(ch => state.fields[ch]);
+}
 
 const highlightPossibleSteps = steps => {
   state.kickedOffCheckerIds.map(id => state.fields[id].classList.add(CONSTANTS.POSSIBLE_ATTACK));

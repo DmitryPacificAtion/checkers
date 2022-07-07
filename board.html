@@ -6,12 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="./style.css">
   <title>Checkers</title>
+  <script defer src="./helper.js"></script>
   <script defer src="./logic.js"></script>
 </head>
 <body>
   <header></header>
   <main>
-    <div class="vertical">
+    <div id="turn" class="turn" data-turn="friend">Turn:</div>
+    <div class="horisontal">
       <div>A</div>
       <div>B</div>
       <div>C</div>
@@ -21,7 +23,7 @@
       <div>G</div>
       <div>H</div>
     </div>
-    <div class="horisontal">
+    <div class="vertical">
       <dd>1</dd>
       <dd>2</dd>
       <dd>3</dd>
@@ -33,68 +35,68 @@
     </div>
     <div class="board">
       <div></div>
-      <div class="cell dark" id="b8"></div>
+      <div class="cell" id="b8"></div>
       <div></div>
-      <div class="cell dark" id="d8"></div>
+      <div class="cell" id="d8"></div>
       <div></div>
-      <div class="cell dark" id="f8"></div>
+      <div class="cell" id="f8"></div>
       <div></div>
-      <div class="cell dark" id="h8"></div>
-      <div class="cell dark" id="a7"></div>
+      <div class="cell" id="h8"></div>
+      <div class="cell" id="a7"></div>
       <div></div>
-      <div class="cell dark" id="c7"></div>
+      <div class="cell" id="c7"></div>
       <div></div>
-      <div class="cell dark" id="e7"></div>
+      <div class="cell" id="e7"></div>
       <div></div>
-      <div class="cell dark" id="g7"></div>
-      <div></div>
-      <div></div>
-      <div class="cell dark" id="b6"></div>
-      <div></div>
-      <div class="cell dark" id="d6"></div>
-      <div></div>
-      <div class="cell dark" id="f6"></div>
-      <div></div>
-      <div class="cell dark" id="h6"></div>
-      <div class="cell dark" id="a5"></div>
-      <div></div>
-      <div class="cell dark" id="c5"></div>
-      <div></div>
-      <div class="cell dark" id="e5"></div>
-      <div></div>
-      <div class="cell dark" id="g5"></div>
+      <div class="cell" id="g7"></div>
       <div></div>
       <div></div>
-      <div class="cell dark" id="b4"></div>
+      <div class="cell" id="b6"></div>
       <div></div>
-      <div class="cell dark" id="d4"></div>
+      <div class="cell" id="d6"></div>
       <div></div>
-      <div class="cell dark" id="f4"></div>
+      <div class="cell" id="f6"></div>
       <div></div>
-      <div class="cell dark" id="h4"></div>
-      <div class="cell dark" id="a3"></div>
+      <div class="cell" id="h6"></div>
+      <div class="cell" id="a5"></div>
       <div></div>
-      <div class="cell dark" id="c3"></div>
+      <div class="cell" id="c5"></div>
       <div></div>
-      <div class="cell dark" id="e3"></div>
+      <div class="cell" id="e5"></div>
       <div></div>
-      <div class="cell dark" id="g3"></div>
+      <div class="cell" id="g5"></div>
       <div></div>
       <div></div>
-      <div class="cell dark" id="b2"></div>
+      <div class="cell" id="b4"></div>
       <div></div>
-      <div class="cell dark" id="d2"></div>
+      <div class="cell" id="d4"></div>
       <div></div>
-      <div class="cell dark" id="f2"></div>
+      <div class="cell" id="f4"></div>
       <div></div>
-      <div class="cell dark" id="h2"></div>
-      <div class="cell dark" id="a1"></div>
+      <div class="cell" id="h4"></div>
+      <div class="cell" id="a3"></div>
       <div></div>
-      <div class="cell dark" id="c1"></div>
+      <div class="cell" id="c3"></div>
       <div></div>
-      <div class="cell dark" id="e1"></div>
+      <div class="cell" id="e3"></div>
       <div></div>
-      <div class="cell dark" id="g1"></div>
+      <div class="cell" id="g3"></div>
+      <div></div>
+      <div></div>
+      <div class="cell" id="b2"></div>
+      <div></div>
+      <div class="cell" id="d2"></div>
+      <div></div>
+      <div class="cell" id="f2"></div>
+      <div></div>
+      <div class="cell" id="h2"></div>
+      <div class="cell" id="a1"></div>
+      <div></div>
+      <div class="cell" id="c1"></div>
+      <div></div>
+      <div class="cell" id="e1"></div>
+      <div></div>
+      <div class="cell" id="g1"></div>
       <div></div>
     </div>
   </main>

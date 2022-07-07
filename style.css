@@ -58,12 +58,9 @@ main {
   position: relative;
 }
 
-.board .cell {
+.cell {
   width: var(--cell-size);
   height: var(--cell-size);
-}
-
-.cell.dark {
   background: var(--black);
 }
 
@@ -72,7 +69,7 @@ main {
   animation: pulse 1s ease-in-out 0s infinite alternate backwards;
 }
 
-.horisontal, .vertical {
+.horisontal, .vertical, .turn {
   position: absolute;
   display: flex;
   font-size: 18px;
@@ -82,37 +79,54 @@ main {
   align-items: center;
   justify-content: space-around;
 }
-.horisontal {
-  height: 100%;
-  left: -18px;
-  flex-direction: column-reverse;
+
+.turn {
+  top: -22px;
 }
-.horisontal dd {
-  bottom: calc(var(--border-width) * -6);
-  left: calc(50% - 6px);
+
+.turn[data-turn]::after {
+  display: block;
+  margin-left: 5px;
 }
-.horisontal dd:first-child {
-  border-bottom: var(--border-width) solid transparent;
+
+.turn[data-turn='friend']::after {
+  content: 'White';
 }
-.horisontal dd:last-child {
-  border-top: var(--border-width) solid transparent;
+.turn[data-turn='alien']::after {
+  content: 'Black';
 }
 
 .vertical {
+  height: 100%;
+  left: -20px;
+  flex-direction: column-reverse;
+}
+.vertical dd {
+  bottom: calc(var(--border-width) * -6);
+  left: calc(50% - 6px);
+}
+.vertical dd:first-child {
+  border-bottom: var(--border-width) solid transparent;
+}
+.vertical dd:last-child {
+  border-top: var(--border-width) solid transparent;
+}
+
+.horisontal {
   bottom: -18px;
   flex-direction: row;
   width: 100%;
 }
-.vertical div {
+.horisontal div {
   flex: 1 0 var(--checker-size);
   left: calc(var(--border-width) * -4);
   bottom: calc(50% - 9px);
   text-align: center;
 }
-.vertical div:first-child {
+.horisontal div:first-child {
   border-left: var(--border-width) solid transparent;
 }
-.vertical div:last-child {
+.horisontal div:last-child {
   border-right: var(--border-width) solid transparent;
 }
 

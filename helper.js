@@ -25,15 +25,21 @@ const getFieldById = id => getFieldsObject()[id];
 const getCharAt = p => p.toString().charCodeAt();
 const getCoordinates = id => id.split('').map(getCharAt);
 const getCharFrom = n => String.fromCharCode(n);
-const getTurn = () => document.getElementById('turn').dataset.turn;
+const getTurn = () => {
+  const { turn } = document.getElementById('turn').dataset;
+  return turn
+}
+const setTurn = (turn) => {
+  document.getElementById('turn').setAttribute('data-turn', turn);
+}
 const getInnerCell = cell => cell.firstChild
 const isCellEmpty = cell => cell ? getInnerCell(cell) === null : true
 const hasFriend = cell => isCellEmpty(cell)
-  ? false
+  ? isEquals(getTurn())(cell) // bug
   : getInnerCell(cell).classList.contains(CONSTANTS.FRIEND)
 
 const hasEnemy = cell => isCellEmpty(cell)
-  ? false
+  ? isEquals(getTurn())(cell) // bug
   : getInnerCell(cell).classList.contains(CONSTANTS.ALIEN)
 
 const highlightCellForMove = step => {
@@ -84,24 +90,33 @@ const directions = {
   backward: [ bottomLeft, bottomRight ],
 };
 
+const convertDiffToDirection = ([x, y]) => {
+  if (x > 0 && y > 0) {
+    return directions.tr;
+  }
+  if (x < 0 && y > 0) {
+    return directions.tl;
+  }
+  if (x > 0 && y < 0) {
+    return directions.br;
+  }
+  if (x < 0 && y < 0) {
+    return directions.bl;
+  }
+  return;
+}
+
+Object.defineProperty(directions, 'diff', {
+  value: (a, b) => {
+    const [xa, ya] = getCoordinates(a);
+    const [xb, yb] = getCoordinates(b);
+
+    const za = div(xa)(xb);
+    const zb = div(ya)(yb);
+
+    return [convertDiffToDirection([za, zb]), zb]
+  },
+});
 
 const lookForOneStep = curry(1);
 const lookForTwoSteps = curry(2);
-
-const onMoveHandler = (fromId) =>({ target }) => {
-  console.log('target', fromId, target);
-  // const { selectedCheckerId, fields } = state;
-  // const source = fields[selectedCheckerId];
-  // const enemyId = state.kickedOffCheckerIds[0];
-  // const enemy = state.fields[enemyId];
-  // if (enemy) {
-  //   state.fields[enemyId].lastChild.classList.add('remove-checker');
-  //   setTimeout(() => state.fields[enemyId].innerHTML = '', 500);
-  // }
-
-  // target.appendChild(source.lastChild);
-  // clearPrevSelectedField();
-  // state.turn = oppositePlayer();
-};
-
-const onAtackHandler = onMoveHandler;

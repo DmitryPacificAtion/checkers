@@ -28,20 +28,55 @@ const state = {
 
 const clearPrevSelectedFields = () => {
   getFieldsHTML().forEach(step => {
-    if (step) {
-      step.removeEventListener('click', onMoveHandler());
-      step.removeEventListener('click', onAtackHandler());
-      step.classList.remove(CONSTANTS.READY, CONSTANTS.POSSIBLE_STEP, CONSTANTS.POSSIBLE_ATTACK)
-    }
+    step.classList.remove(CONSTANTS.READY, CONSTANTS.POSSIBLE_STEP, CONSTANTS.POSSIBLE_ATTACK)
   });
   state.kickedOffCheckerIds = [];
   state.selectedCheckerId = null;
+};
+
+const endTurn = () => {
+  const turn = getTurn();
+  clearPrevSelectedFields();
+
+  if (isEquals(CONSTANTS.FRIEND)(turn)) {
+    setTurn(CONSTANTS.ALIEN);
+  } else {
+    setTurn(CONSTANTS.FRIEND);
+  }
+}
+
+const onMoveHandler = ({ target }, fromId) => {
+  console.log('onMoveHandler', fromId, target);
+  const source = getFieldById(fromId);
+  target.appendChild(source.lastChild);
+  source.innerHTML = null;
+  target.onclick = null;
+  endTurn();
+}
+
+const onAtackHandler = fromId =>({ target }) => {
+  console.log('onAtackHandler', target);
+  const [totalDirection, step] = directions.diff(fromId, target.id);
+  const source = getFieldById(fromId);
+  const enemyId = totalDirection(step / 2)(target.id);
+  const enemy = getFieldById(enemyId);
+
+  if (enemy) {
+      console.log('target', enemy);
+      enemy.lastChild.classList.add('remove-checker');
+      setTimeout(() => enemy.innerHTML = '', 500);
+    }
+
+    target.appendChild(source.lastChild);
+    target.onclick = null;
+    endTurn();
 };
 
 const defineEnemy = id => direction => {
   const nextCell = getFieldById(direction(1)(id));
 
   if (hasEnemy(nextCell)) {
+    console.log('defineEnemy', hasEnemy(nextCell));
     const cellAfterNext = pipe(
       direction(2),
       getFieldById,
@@ -51,7 +86,7 @@ const defineEnemy = id => direction => {
       highlightCellForAttack(nextCell);
       highlightCellForMove(cellAfterNext);
 
-      cellAfterNext.addEventListener('click', onMoveHandler(id));
+      cellAfterNext.onclick = e => onAtackHandler(e, id);
       return cellAfterNext;
     }
   }
@@ -63,7 +98,8 @@ const defineCellsToMove = id => direction => {
 
   if (nextCell && isCellEmpty(nextCell)) {
     highlightCellForMove(nextCell);
-    nextCell.addEventListener('click', onMoveHandler(id));
+
+    nextCell.onclick = e => onMoveHandler(e, id);
     return nextCell;
   }
 
@@ -72,14 +108,16 @@ const defineCellsToMove = id => direction => {
 
 const definePossibleSteps = (id) => {
 
-  // TODO: Incapsulate and Simplify coordinates logic
+  // bug?
   const directionsForAttack = directions.all.map(defineEnemy(id)).filter(is);
 
+  console.log();
   if (directionsForAttack.length === 0) {
     return pipe(
       isEquals(CONSTANTS.FRIEND),
       (flag) => flag ? directions.forward : directions.backward,
-      map(defineCellsToMove(id)),
+      logger('go'),
+      map(defineCellsToMove(id)), // bug?
       filter(is)
     )(getTurn())
   }

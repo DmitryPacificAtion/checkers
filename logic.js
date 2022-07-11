@@ -62,7 +62,6 @@ const onAtackHandler = fromId =>({ target }) => {
   const enemy = getFieldById(enemyId);
 
   if (enemy) {
-      console.log('target', enemy);
       enemy.lastChild.classList.add('remove-checker');
       setTimeout(() => enemy.innerHTML = '', 500);
     }
@@ -76,7 +75,6 @@ const defineEnemy = id => direction => {
   const nextCell = getFieldById(direction(1)(id));
 
   if (hasEnemy(nextCell)) {
-    console.log('defineEnemy', hasEnemy(nextCell));
     const cellAfterNext = pipe(
       direction(2),
       getFieldById,
@@ -108,7 +106,6 @@ const defineCellsToMove = id => direction => {
 
 const definePossibleSteps = (id) => {
 
-  // bug?
   const directionsForAttack = directions.all.map(defineEnemy(id)).filter(is);
 
   console.log();
@@ -116,8 +113,7 @@ const definePossibleSteps = (id) => {
     return pipe(
       isEquals(CONSTANTS.FRIEND),
       (flag) => flag ? directions.forward : directions.backward,
-      logger('go'),
-      map(defineCellsToMove(id)), // bug?
+      map(defineCellsToMove(id)),
       filter(is)
     )(getTurn())
   }

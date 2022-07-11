@@ -35,12 +35,12 @@ const setTurn = (turn) => {
 const getInnerCell = cell => cell.firstChild
 const isCellEmpty = cell => cell ? getInnerCell(cell) === null : true
 const hasFriend = cell => isCellEmpty(cell)
-  ? isEquals(getTurn())(cell) // bug
-  : getInnerCell(cell).classList.contains(CONSTANTS.FRIEND)
+  ? false
+  : isEquals(getInnerCell(cell).classList.value)(getTurn())
 
 const hasEnemy = cell => isCellEmpty(cell)
-  ? isEquals(getTurn())(cell) // bug
-  : getInnerCell(cell).classList.contains(CONSTANTS.ALIEN)
+  ? false
+  : !isEquals(getInnerCell(cell).classList.value)(getTurn())
 
 const highlightCellForMove = step => {
   step.classList.add(CONSTANTS.POSSIBLE_STEP);

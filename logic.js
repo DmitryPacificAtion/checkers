@@ -38,17 +38,24 @@ const clearPrevSelectedFields = () => {
   state.selectedCheckerId = null;
 };
 
-const defineEnemy = (coords) => direction => {
-  const nextCell = getFieldById(direction(coords, 1));
+const defineEnemy = (id) => direction => {
+  console.log(direction(1));
+  const nextCell = direction(1)(id);
 
   if (hasEnemy(nextCell)) {
-    const cellAfterNext = getFieldById(direction(coords, 2));
+
+    const cellAfterNext = pipe(
+      getCoordinates,
+      direction(1),
+      logger('cellAfterNext'),
+      getFieldById,
+    )(id)
 
     if(cellAfterNext && isCellEmpty(cellAfterNext)) {
       highlightCellForAttack(nextCell);
       highlightCellForMove(cellAfterNext);
 
-      cellAfterNext.addEventListener('click', onMoveHandler(coords));
+      cellAfterNext.addEventListener('click', onMoveHandler(id));
       return cellAfterNext;
     }
 
@@ -57,12 +64,12 @@ const defineEnemy = (coords) => direction => {
   return null;
 }
 
-const defineCellsToMove = (coords) => direction => {
-  const nextCell = getFieldById(direction(coords, 1));
+const defineCellsToMove = (id) => () => {
+  const nextCell = getFieldById(id);
 
   if (nextCell && isCellEmpty(nextCell)) {
     highlightCellForMove(nextCell);
-    nextCell.addEventListener('click', onMoveHandler(coords));
+    nextCell.addEventListener('click', onMoveHandler(id));
 
     return nextCell;
   }
@@ -73,16 +80,16 @@ const defineCellsToMove = (coords) => direction => {
 const definePossibleSteps = (id) => {
 
   // TODO: Incapsulate and Simplify coordinates logic
-  const coords = getCoordinates(id);
-  const directionsForAttack = directions.all.map(defineEnemy(coords)).filter(is);
+  const directionsForAttack = directions.all.map(f => f(1)(id));
 
+  console.log(directionsForAttack);
   if (directionsForAttack.length === 0) {
     return (
       getTurn() === CONSTANTS.FRIEND
         ? directions.forward
         : directions.backward
       )
-      .map(defineCellsToMove(coords))
+      .map(defineCellsToMove(id))
       .filter(is);
   }
 

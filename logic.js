@@ -38,16 +38,12 @@ const clearPrevSelectedFields = () => {
   state.selectedCheckerId = null;
 };
 
-const defineEnemy = (id) => direction => {
-  console.log(direction(1));
-  const nextCell = direction(1)(id);
+const defineEnemy = id => direction => {
+  const nextCell = getFieldById(direction(1)(id));
 
   if (hasEnemy(nextCell)) {
-
     const cellAfterNext = pipe(
-      getCoordinates,
-      direction(1),
-      logger('cellAfterNext'),
+      direction(2),
       getFieldById,
     )(id)
 
@@ -58,19 +54,16 @@ const defineEnemy = (id) => direction => {
       cellAfterNext.addEventListener('click', onMoveHandler(id));
       return cellAfterNext;
     }
-
-    return null;
   }
   return null;
 }
 
-const defineCellsToMove = (id) => () => {
-  const nextCell = getFieldById(id);
+const defineCellsToMove = id => direction => {
+  const nextCell = getFieldById(direction(1)(id));
 
   if (nextCell && isCellEmpty(nextCell)) {
     highlightCellForMove(nextCell);
     nextCell.addEventListener('click', onMoveHandler(id));
-
     return nextCell;
   }
 
@@ -80,17 +73,15 @@ const defineCellsToMove = (id) => () => {
 const definePossibleSteps = (id) => {
 
   // TODO: Incapsulate and Simplify coordinates logic
-  const directionsForAttack = directions.all.map(f => f(1)(id));
+  const directionsForAttack = directions.all.map(defineEnemy(id)).filter(is);
 
-  console.log(directionsForAttack);
   if (directionsForAttack.length === 0) {
-    return (
-      getTurn() === CONSTANTS.FRIEND
-        ? directions.forward
-        : directions.backward
-      )
-      .map(defineCellsToMove(id))
-      .filter(is);
+    return pipe(
+      isEquals(CONSTANTS.FRIEND),
+      (flag) => flag ? directions.forward : directions.backward,
+      map(defineCellsToMove(id)),
+      filter(is)
+    )(getTurn())
   }
 
   return directionsForAttack;

@@ -1,5 +1,6 @@
 const pipe = (...fns) => x => fns.reduce((y, f) => f(y), x);
 const is = x => x;
+const isEquals = x => y => x === y;
 const Identity = value => ({
   map: fn => Identity(fn(value))
 });

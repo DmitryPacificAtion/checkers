@@ -1,20 +1,3 @@
-const CONSTANTS = {
-  FRIEND: 'friend',
-  ALIEN: 'alien',
-  READY: 'ready',
-  START_MOVEMENT: 'start-movement',
-  END_MOVEMENT: 'end-movement',
-  POSSIBLE_ATTACK: 'possible-attack',
-  POSSIBLE_STEP: 'possible-step',
-};
-
-const players = {
-  0: CONSTANTS.FRIEND,
-  1: CONSTANTS.ALIEN,
-  [CONSTANTS.FRIEND]: 0,
-  [CONSTANTS.ALIEN]: 1
-};
-
 const defaultArrangements = {
   [CONSTANTS.FRIEND]: [
     'a7', 'g7', 'e1',
@@ -33,47 +16,21 @@ const defaultArrangements = {
   //   'a3', 'c3', 'e3', 'g3',
   // ],
   // [CONSTANTS.ALIEN]: [
-  //   'f4', 'b8', 'd8', 'f8', 'h8',
+  //   'b8', 'd8', 'f8', 'h8',
   //   'a7', 'c7', 'e7', 'g7',
   //   'b6', 'd6', 'f6', 'h6',
   // ]
 };
 const state = {
-  fields: null,
   selectedCheckerId: null,
   kickedOffCheckerIds: [],
-  turn: players[0],
 };
 
-const _do = (...args) => f => f(...args);
-const getCharAt = p => p.toString().charCodeAt();
-const getCoords = id => id.split('').map(getCharAt);
-const getCharFrom = n => String.fromCharCode(n);
-const getFieldById = id => state.fields[id];
-
-const add = ([x, y]) => x + y;
-const div = ([x, y]) => {
-  if (Array.isArray(x) && Array.isArray(y)) {
-    const [ firstX, lastX ] = x;
-    const [ firstY, lastY ] = y;
-    return [div([firstX, firstY]), div([lastX, lastY])];
-  }
-  return x - y;
-};
-
-const addWith = ([x, y], n) => [add([x, n]), add([y, n])];
-const divWith = ([x, y], n) => [div([x, n]), div([y, n])];
-const oppositePlayer = () => players[+!players[state.turn]];
-const hasOpposite = (field) => field?.lastChild?.classList.contains(oppositePlayer());
-const topRight = (coords, n) => addWith(coords, n).map(getCharFrom).join('');
-const topLeft = ([x, y], n) => [div([x, n]), add([y, n])].map(getCharFrom).join('');
-const bottomLeft = (coords, n) => divWith(coords, n).map(getCharFrom).join('');
-const bottomRight = ([x, y], n) => [add([x, n]), div([y, n])].map(getCharFrom).join('');
-
-const clearPrevSelectedField = () => {
-  Object.values(state.fields).forEach(step => {
+const clearPrevSelectedFields = () => {
+  getFieldsHTML().forEach(step => {
     if (step) {
-      step.removeEventListener('click', moveHandler);
+      step.removeEventListener('click', onMoveHandler());
+      step.removeEventListener('click', onAtackHandler());
       step.classList.remove(CONSTANTS.READY, CONSTANTS.POSSIBLE_STEP, CONSTANTS.POSSIBLE_ATTACK)
     }
   });
@@ -81,128 +38,75 @@ const clearPrevSelectedField = () => {
   state.selectedCheckerId = null;
 };
 
-const moveHandler = ({ target }) => {
-  const { selectedCheckerId, fields } = state;
-  const source = fields[selectedCheckerId];
-  const enemyId = state.kickedOffCheckerIds[0];
-  const enemy = state.fields[enemyId];
-  if (enemy) {
-    state.fields[enemyId].lastChild.classList.add('remove-checker');
-    setTimeout(() => state.fields[enemyId].innerHTML = '', 500);
-  }
+const defineEnemy = (coords) => direction => {
+  const nextCell = getFieldById(direction(coords, 1));
 
-  target.appendChild(source.lastChild);
-  clearPrevSelectedField();
-  state.turn = oppositePlayer();
-};
+  if (hasEnemy(nextCell)) {
+    const cellAfterNext = getFieldById(direction(coords, 2));
 
-const directions = {
-  tr: topRight,
-  tl: topLeft,
-  bl: bottomLeft,
-  br: bottomRight
-};
+    if(cellAfterNext && isCellEmpty(cellAfterNext)) {
+      highlightCellForAttack(nextCell);
+      highlightCellForMove(cellAfterNext);
 
-const convertDiffToDirection = ([x, y]) => {
-  if (x > 0 && y > 0) {
-    return directions.tr;
+      cellAfterNext.addEventListener('click', onMoveHandler(coords));
+      return cellAfterNext;
+    }
+
+    return null;
   }
-  if (x < 0 && y > 0) {
-    return directions.tl;
-  }
-  if (x > 0 && y < 0) {
-    return directions.br;
-  }
-  if (x < 0 && y < 0) {
-    return directions.bl;
-  }
-  return;
+  return null;
 }
 
-const defineNextCell = (field) => {
-  const { id: fieldId } = field;
-  const nextCell = getFieldById(
-    convertDiffToDirection(
-      directions.diff(fieldId, state.selectedCheckerId)
-    )(getCoords(fieldId), 1)
-  );
+const defineCellsToMove = (coords) => direction => {
+  const nextCell = getFieldById(direction(coords, 1));
 
-  if (nextCell && !nextCell.lastChild) {
-    state.kickedOffCheckerIds.push(fieldId);
+  if (nextCell && isCellEmpty(nextCell)) {
+    highlightCellForMove(nextCell);
+    nextCell.addEventListener('click', onMoveHandler(coords));
+
     return nextCell;
   }
 
   return null;
 }
 
-Object.defineProperty(directions, 'diff', {
-  value: (a, b) => div([getCoords(a), getCoords(b)]),
-});
+const definePossibleSteps = (id) => {
 
-const posibleNearbyIds = coords => n => {
-  let availableDirections = [];
-  if (state.turn === CONSTANTS.ALIEN) {
-    availableDirections = [directions.br, directions.bl];
-  } else {
-    availableDirections = [directions.tr, directions.tl];
+  // TODO: Incapsulate and Simplify coordinates logic
+  const coords = getCoordinates(id);
+  const directionsForAttack = directions.all.map(defineEnemy(coords)).filter(is);
+
+  if (directionsForAttack.length === 0) {
+    return (
+      getTurn() === CONSTANTS.FRIEND
+        ? directions.forward
+        : directions.backward
+      )
+      .map(defineCellsToMove(coords))
+      .filter(is);
   }
 
-  return availableDirections.map(_do(coords, n)).filter(ch => state.fields[ch]);
-}
+  return directionsForAttack;
 
-const highlightPossibleSteps = steps => {
-  state.kickedOffCheckerIds.map(id => state.fields[id].classList.add(CONSTANTS.POSSIBLE_ATTACK));
+};
 
-  return steps.map(step => {
-    step.addEventListener('click', moveHandler)
-    step.classList.add(CONSTANTS.POSSIBLE_STEP);
-    return step;
-  })}
+const onClickChecker = ({ target }) => {
+  const { parentNode: cell } = target;
+  if (getFieldById(cell.id)) {
+    clearPrevSelectedFields();
+  }
 
-const definePossibleSteps = () => {
-  const { selectedCheckerId: id } = state;
-  const posibleStepsIds = posibleNearbyIds(getCoords(id))(1)
-    .map(stedId => getFieldById(stedId))
-    .filter(f => f)
-    .map(field => {
-        if (field.lastChild) {
-          const enemy = hasOpposite(field);
-          return enemy ? defineNextCell(field) : null;
-        }
-
-      return field;
-    })
-    .filter(f => f);
-
-  // Add 'highlight' function and transform 'posibleSteps' to functor
-  // Object.defineProperty(posibleSteps, 'highlight', {
-  //   value: () => {
-  //     return highlightPossibleSteps(posibleSteps);
-  //   }
-  // });
-
-  return highlightPossibleSteps(posibleStepsIds);
+  if (target.dataset[getTurn()]) {
+    console.time('select-checker');
+    cell.classList.add(CONSTANTS.READY);
+    definePossibleSteps(cell.id);
+    console.timeEnd('select-checker');
+  }
 };
 
 const createChecker = (name, index) => {
-
-  const onClick = ({ target }) => {
-    const { parentNode: cell } = target;
-    if (state.fields[state.selectedCheckerId]) {
-      clearPrevSelectedField();
-    }
-    state.selectedCheckerId = cell.id;
-
-    if(target.dataset[state.turn]) {
-      console.time('select-checker');
-      cell.classList.add(CONSTANTS.READY);
-      definePossibleSteps();
-      console.timeEnd('select-checker');
-    }
-  };
-
   const div = document.createElement('div');
-  div.addEventListener('click', onClick);
+  div.addEventListener('click', onClickChecker);
 
   div.classList.add(name);
   div.setAttribute(`data-${name}`, index);
@@ -218,13 +122,9 @@ const putCheckerToTheBoard = (name, field, index) => {
 
 function init() {
   console.time('init');
-  state.fields = Object.values(document.querySelectorAll('.cell.dark'))
-    .reduce((acc, cur) => {
-      acc[cur.id] = cur;
-      return acc;
-    }, {});
+  // TODO: Reduce amount of <div />
 
-  Object.values(state.fields).forEach((field, index) => {
+  getFieldsHTML().forEach((field, index) => {
     putCheckerToTheBoard(CONSTANTS.FRIEND, field, index);
     putCheckerToTheBoard(CONSTANTS.ALIEN, field, index);
   });

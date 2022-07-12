@@ -1,7 +1,7 @@
 const defaultArrangements = {
   [CONSTANTS.FRIEND]: [
     'a7', 'g7', 'e1',
-    'b4', 'c5', 'e3',
+    'b4', 'd6', 'e3',
     'b2', 'h2',
   ],
   [CONSTANTS.ALIEN]: [
@@ -21,22 +21,24 @@ const defaultArrangements = {
   //   'b6', 'd6', 'f6', 'h6',
   // ]
 };
-const state = {
-  selectedCheckerId: null,
-  kickedOffCheckerIds: [],
+const clearPossibleStepsSelection = () => {
+  document.querySelectorAll(`.${CONSTANTS.POSSIBLE_STEP}`).forEach(cell => {
+    cell.classList.remove(CONSTANTS.POSSIBLE_STEP);
+    cell.onclick = null;
+  });
+  document.querySelectorAll(`.${CONSTANTS.POSSIBLE_ATTACK}`).forEach(cell => {
+    cell.classList.remove(CONSTANTS.POSSIBLE_ATTACK);
+  });
 };
 
-const clearPrevSelectedFields = () => {
-  getFieldsHTML().forEach(step => {
-    step.classList.remove(CONSTANTS.READY, CONSTANTS.POSSIBLE_STEP, CONSTANTS.POSSIBLE_ATTACK)
-  });
-  state.kickedOffCheckerIds = [];
-  state.selectedCheckerId = null;
+const clearReadyField = () => {
+  document.querySelector('.ready')?.classList.remove(CONSTANTS.READY);
 };
 
 const endTurn = () => {
   const turn = getTurn();
-  clearPrevSelectedFields();
+  clearReadyField();
+  clearPossibleStepsSelection();
 
   if (isEquals(CONSTANTS.FRIEND)(turn)) {
     setTurn(CONSTANTS.ALIEN);
@@ -46,32 +48,37 @@ const endTurn = () => {
 }
 
 const onMoveHandler = ({ target }, fromId) => {
-  console.log('onMoveHandler', fromId, target);
   const source = getFieldById(fromId);
-  target.appendChild(source.lastChild);
+  target.appendChild(source.firstChild);
   source.innerHTML = null;
-  target.onclick = null;
   endTurn();
 }
 
-const onAtackHandler = fromId =>({ target }) => {
-  console.log('onAtackHandler', target);
-  const [totalDirection, step] = directions.diff(fromId, target.id);
+const onAtackHandler = ({ target }, fromId) => {
+  const [resultDirection] = directions.diff(fromId, target.id);
+
   const source = getFieldById(fromId);
-  const enemyId = totalDirection(step / 2)(target.id);
+  const enemyId = resultDirection(1)(target.id);
   const enemy = getFieldById(enemyId);
 
   if (enemy) {
-      enemy.lastChild.classList.add('remove-checker');
-      setTimeout(() => enemy.innerHTML = '', 500);
-    }
+    target.appendChild(source.firstChild);
+    enemy.firstChild.classList.add('remove-checker');
 
-    target.appendChild(source.lastChild);
-    target.onclick = null;
-    endTurn();
+    setTimeout(() => {
+      enemy.innerHTML = null;
+      clearPossibleStepsSelection();
+
+      const arr = directions.all.map(defineCellsForAttack(target.id)).filter(is);
+      if(arr.length === 0) {
+        target.onclick = null;
+        endTurn();
+      }
+    }, 500);
+  }
 };
 
-const defineEnemy = id => direction => {
+const defineCellsForAttack = id => direction => {
   const nextCell = getFieldById(direction(1)(id));
 
   if (hasEnemy(nextCell)) {
@@ -106,9 +113,8 @@ const defineCellsToMove = id => direction => {
 
 const definePossibleSteps = (id) => {
 
-  const directionsForAttack = directions.all.map(defineEnemy(id)).filter(is);
+  const directionsForAttack = directions.all.map(defineCellsForAttack(id)).filter(is);
 
-  console.log();
   if (directionsForAttack.length === 0) {
     return pipe(
       isEquals(CONSTANTS.FRIEND),
@@ -125,12 +131,13 @@ const definePossibleSteps = (id) => {
 const onClickChecker = ({ target }) => {
   const { parentNode: cell } = target;
   if (getFieldById(cell.id)) {
-    clearPrevSelectedFields();
+    clearReadyField(cell.id);
+    clearPossibleStepsSelection();
   }
 
   if (target.dataset[getTurn()]) {
     console.time('select-checker');
-    cell.classList.add(CONSTANTS.READY);
+    target.classList.add(CONSTANTS.READY);
     definePossibleSteps(cell.id);
     console.timeEnd('select-checker');
   }

@@ -90,7 +90,7 @@ const directions = {
   backward: [ bottomLeft, bottomRight ],
 };
 
-const convertDiffToDirection = ([x, y]) => {
+const convertDiffToDirection = x => y =>{
   if (x > 0 && y > 0) {
     return directions.tr;
   }
@@ -107,14 +107,12 @@ const convertDiffToDirection = ([x, y]) => {
 }
 
 Object.defineProperty(directions, 'diff', {
-  value: (a, b) => {
-    const [xa, ya] = getCoordinates(a);
-    const [xb, yb] = getCoordinates(b);
+  value: (from, to) => {
+    const [fromX, fromY] = getCoordinates(from);
+    const [toX, toY] = getCoordinates(to);
+    const steps = div(fromX)(toX);
 
-    const za = div(xa)(xb);
-    const zb = div(ya)(yb);
-
-    return [convertDiffToDirection([za, zb]), zb]
+    return [convertDiffToDirection(steps)(div(fromY)(toY)), steps]
   },
 });
 

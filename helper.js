@@ -15,6 +15,9 @@ const players = {
   [CONSTANTS.ALIEN]: 1
 };
 
+const QUEEN_FOR_ALIEN_INDEXES = [ 'a1', 'b8', 'c1', 'd8' ];
+const QUEEN_FOR_FRIEND_INDEXES = [ 'e1', 'f8', 'g1', 'h8' ];
+
 const getFieldsHTML = () => Object.values(document.querySelectorAll('.cell'));
 const getFieldsObject = () => getFieldsHTML()
 .reduce((acc, cur) => {
@@ -118,3 +121,15 @@ Object.defineProperty(directions, 'diff', {
 
 const lookForOneStep = curry(1);
 const lookForTwoSteps = curry(2);
+
+const checkIsQueen = (target) => {
+  if (isEquals(CONSTANTS.FRIEND)(getTurn())) {
+    if (QUEEN_FOR_ALIEN_INDEXES.includes(target.id)) {
+      target.firstChild.classList.add('queen');
+    }
+  } else {
+    if (QUEEN_FOR_FRIEND_INDEXES.includes(target.id)) {
+      target.firstChild.classList.add('queen');
+    }
+  }
+}

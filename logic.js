@@ -1,25 +1,25 @@
 const defaultArrangements = {
-  [CONSTANTS.FRIEND]: [
-    'a7', 'g7', 'e1',
-    'b4', 'd6', 'e3',
-    'b2', 'h2',
-  ],
-  [CONSTANTS.ALIEN]: [
-    'b8', 'f8', 'h8',
-    'b6', 'f6', 'h6',
-    'a3', 'c3', 'f2',
-    'a1', 'c1', 'g1'
-  ],
   // [CONSTANTS.FRIEND]: [
-  //   'a1', 'c1', 'e1', 'g1',
-  //   'b2', 'd2', 'f2', 'h2',
-  //   'a3', 'c3', 'e3', 'g3',
+  //   'a7', 'g7', 'e1',
+  //   'b4', 'd6', 'e3',
+  //   'b2', 'h2',
   // ],
   // [CONSTANTS.ALIEN]: [
-  //   'b8', 'd8', 'f8', 'h8',
-  //   'a7', 'c7', 'e7', 'g7',
-  //   'b6', 'd6', 'f6', 'h6',
-  // ]
+  //   'b8', 'f8', 'h8',
+  //   'b6', 'f6', 'h6',
+  //   'a3', 'c3', 'f2',
+  //   'a1', 'c1', 'g1'
+  // ],
+  [CONSTANTS.FRIEND]: [
+    'a1', 'c1', 'e1', 'g1',
+    'b2', 'd2', 'f2', 'h2',
+    'a3', 'c3', 'e3', 'g3',
+  ],
+  [CONSTANTS.ALIEN]: [
+    'b8', 'd8', 'f8', 'h8',
+    'a7', 'c7', 'e7', 'g7',
+    'b6', 'd6', 'f6', 'h6',
+  ]
 };
 const clearPossibleStepsSelection = () => {
   document.querySelectorAll(`.${CONSTANTS.POSSIBLE_STEP}`).forEach(cell => {
@@ -50,6 +50,8 @@ const endTurn = () => {
 const onMoveHandler = ({ target }, fromId) => {
   const source = getFieldById(fromId);
   target.appendChild(source.firstChild);
+
+  checkIsQueen(target);
   source.innerHTML = null;
   endTurn();
 }
@@ -71,6 +73,7 @@ const onAtackHandler = ({ target }, fromId) => {
 
       const arr = directions.all.map(defineCellsForAttack(target.id)).filter(is);
       if(arr.length === 0) {
+        checkIsQueen(target);
         target.onclick = null;
         endTurn();
       }
@@ -136,10 +139,10 @@ const onClickChecker = ({ target }) => {
   }
 
   if (target.dataset[getTurn()]) {
-    console.time('select-checker');
+    // console.time('select-checker');
     target.classList.add(CONSTANTS.READY);
     definePossibleSteps(cell.id);
-    console.timeEnd('select-checker');
+    // console.timeEnd('select-checker');
   }
 };
 

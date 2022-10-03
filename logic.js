@@ -1,4 +1,10 @@
 const defaultArrangements = {
+  [CONSTANTS.FRIEND]: [
+    'a7', 'e3', 'g7'
+  ],
+  [CONSTANTS.ALIEN]: [
+    'h6', 'f2', 'b2',
+  ],
   // [CONSTANTS.FRIEND]: [
   //   'a7', 'g7', 'e1',
   //   'b4', 'd6', 'e3',
@@ -10,16 +16,16 @@ const defaultArrangements = {
   //   'a3', 'c3', 'f2',
   //   'a1', 'c1', 'g1'
   // ],
-  [CONSTANTS.FRIEND]: [
-    'a1', 'c1', 'e1', 'g1',
-    'b2', 'd2', 'f2', 'h2',
-    'a3', 'c3', 'e3', 'g3',
-  ],
-  [CONSTANTS.ALIEN]: [
-    'b8', 'd8', 'f8', 'h8',
-    'a7', 'c7', 'e7', 'g7',
-    'b6', 'd6', 'f6', 'h6',
-  ]
+  // [CONSTANTS.FRIEND]: [
+  //   'a1', 'c1', 'e1', 'g1',
+  //   'b2', 'd2', 'f2', 'h2',
+  //   'a3', 'c3', 'e3', 'g3',
+  // ],
+  // [CONSTANTS.ALIEN]: [
+  //   'b8', 'd8', 'f8', 'h8',
+  //   'a7', 'c7', 'e7', 'g7',
+  //   'b6', 'd6', 'f6', 'h6',
+  // ]
 };
 const clearPossibleStepsSelection = () => {
   document.querySelectorAll(`.${CONSTANTS.POSSIBLE_STEP}`).forEach(cell => {
@@ -82,20 +88,20 @@ const onAtackHandler = ({ target }, fromId) => {
 };
 
 const defineCellsForAttack = id => direction => {
-  const nextCell = getFieldById(direction(1)(id));
+  const enemyCell = getFieldById(direction(1)(id));
 
-  if (hasEnemy(nextCell)) {
-    const cellAfterNext = pipe(
+  if (hasEnemy(enemyCell)) {
+    const cellAfterEnemy = pipe(
       direction(2),
       getFieldById,
     )(id)
 
-    if(cellAfterNext && isCellEmpty(cellAfterNext)) {
-      highlightCellForAttack(nextCell);
-      highlightCellForMove(cellAfterNext);
+    if(cellAfterEnemy && isCellEmpty(cellAfterEnemy)) {
+      highlightCellForAttack(enemyCell);
+      highlightCellForMove(cellAfterEnemy);
 
-      cellAfterNext.onclick = e => onAtackHandler(e, id);
-      return cellAfterNext;
+      cellAfterEnemy.onclick = e => onAtackHandler(e, id);
+      return cellAfterEnemy;
     }
   }
   return null;

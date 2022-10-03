@@ -15,8 +15,8 @@ const players = {
   [CONSTANTS.ALIEN]: 1
 };
 
-const QUEEN_FOR_ALIEN_INDEXES = [ 'a1', 'b8', 'c1', 'd8' ];
-const QUEEN_FOR_FRIEND_INDEXES = [ 'e1', 'f8', 'g1', 'h8' ];
+const QUEEN_FOR_ALIEN_INDEXES = [ 'a1', 'c1', 'e1', 'g1' ];
+const QUEEN_FOR_FRIEND_INDEXES = [ 'b8', 'd8', 'f8', 'h8' ];
 
 const getFieldsHTML = () => Object.values(document.querySelectorAll('.cell'));
 const getFieldsObject = () => getFieldsHTML()
@@ -123,13 +123,12 @@ const lookForOneStep = curry(1);
 const lookForTwoSteps = curry(2);
 
 const checkIsQueen = (target) => {
-  if (isEquals(CONSTANTS.FRIEND)(getTurn())) {
-    if (QUEEN_FOR_ALIEN_INDEXES.includes(target.id)) {
-      target.firstChild.classList.add('queen');
-    }
-  } else {
-    if (QUEEN_FOR_FRIEND_INDEXES.includes(target.id)) {
-      target.firstChild.classList.add('queen');
-    }
+  const friendCheck = target.firstChild.classList.contains(CONSTANTS.FRIEND)
+    && QUEEN_FOR_FRIEND_INDEXES.includes(target.id);
+  const ailenCheck = target.firstChild.classList.contains(CONSTANTS.ALIEN)
+    && QUEEN_FOR_ALIEN_INDEXES.includes(target.id)
+
+  if (friendCheck || ailenCheck ) {
+    target.firstChild.classList.add('queen');
   }
 }

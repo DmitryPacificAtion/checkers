@@ -41,15 +41,18 @@ main {
   margin: calc(var(--cell-size)) auto;
   border: calc(var(--border-width) * 6) solid var(--white);
   width: calc((var(--cell-size) * 8) + (var(--border-width) * 2));
+  height: calc((var(--cell-size) * 8) + (var(--border-width) * 2));
 }
 
 .board {
   list-style: none;
   background: var(--white);
   display: grid;
-  grid-template-rows: 1fr;
-  grid-template-columns: repeat(8, var(--cell-size));
+  grid-template-rows: repeat(4, var(--cell-size));
+  grid-template-columns: repeat(auto-fill, var(--cell-size));
   width: calc(var(--cell-size) * 8);
+  height: calc(var(--cell-size) * 8);
+  gap: 0 var(--cell-size);
   margin: 0 auto;
   padding: 0;
   position: relative;
@@ -63,7 +66,11 @@ main {
 .cell {
   width: var(--cell-size);
   height: var(--cell-size);
+  margin-left: var(--cell-size);
   background: var(--black);
+}
+.cell:nth-child(8n + 5), .cell:nth-child(8n + 6), .cell:nth-child(8n + 7), .cell:nth-child(8n + 8) {
+  margin-left: 0;
 }
 
 .cell .alien.ready,

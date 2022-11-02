@@ -117,47 +117,38 @@ const defineCellsForAttack = id => direction => {
   return null;
 }
 
-const defineCellsToMove = id => direction => {
-    const nextCell = getFieldById(direction(1)(id));
-
-  if (nextCell && isCellEmpty(nextCell)) {
+const defineCellsToMove = (cell) => direction => {
+  const foundCells = [];
+  console.log('defineCellsToMove cell', cell);
+  for (var index = 1; ; index++) {
+    const nextCell = document.getElementById(direction(index)(cell.id));
+    if (!nextCell) break;
+    nextCell.onclick = onMoveHandler(cell.id);
     highlightCellForMove(nextCell);
-
-    nextCell.onclick = onMoveHandler(id);
-    return nextCell;
+    foundCells.push(nextCell);
+    console.log('is queen', isQueen(cell.firstChild), cell.firstChild);
+    if (!isQueen(cell.firstChild)) {
+      break;
+    }
   }
 
-  return null;
+  console.log('foundCells', foundCells);
 }
 
 const definePossibleSteps = (cell) => {
   const { firstChild: target } = cell;
-
   const directionsForAttack = directions.all.map(defineCellsForAttack(cell.id)).filter(is);
-
-  if (directionsForAttack.length === 0) {
-    if(isQueen(target)) {
-      // console.log('friend queen');
-      directions.allRecursively.forEach(defineCellsToMove(cell.id))
-    } else {
+  if(isQueen(target)) {
+    directions.all.map(defineCellsToMove(cell)).filter(is).forEach(highlightCellForMove);
+  } else {
+    if (directionsForAttack.length === 0) {
       if (getTurn() === CONSTANTS.FRIEND) {
-        // console.log('friend simple');
-        directions.forward.forEach(defineCellsToMove(cell.id))
-    } else {
-        // console.log('enemy simple');
-        directions.backward.forEach(defineCellsToMove(cell.id))
+        directions.forward.map(defineCellsToMove(cell)).filter(is).forEach(highlightCellForMove);
+      } else {
+        directions.backward.map(defineCellsToMove(cell)).filter(is).forEach(highlightCellForMove);
       }
     }
   }
-
-  // if (directionsForAttack.length === 0) {
-  //   return pipe(
-  //     isEquals(CONSTANTS.FRIEND),
-  //     (flag) => flag ? directions.forward : directions.backward,
-  //     map(defineCellsToMove(target.id)),
-  //     filter(is)
-  //   )(getTurn())
-  // }
 
   return directionsForAttack;
 
@@ -190,6 +181,7 @@ const createChecker = (name, index) => {
 const putCheckerToTheBoard = (name, field, index) => {
   if (defaultArrangements[name].includes(field.id)) {
     const checker = createChecker(name, index);
+    field.id === 'b8' && upgradeToQueen(checker)
     field.appendChild(checker);
   }
 };

@@ -8,7 +8,7 @@ function wrap(target) {
       if (!(property in target)) {
         throw new ReferenceError('Property does not exist!')
       }
-      
+
       return Reflect.get(target, property, receiver); // target[property]
      }
   });

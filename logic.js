@@ -122,7 +122,6 @@ const definePossibleSteps = (target) => {
 
     if(isQueen(target)) {
       // console.log('friend queen');
-      waysToMove = directions.allRecursively;
     } else {
       if (getTurn() === CONSTANTS.FRIEND) {
         // console.log('friend simple');

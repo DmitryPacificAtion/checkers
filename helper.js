@@ -95,36 +95,6 @@ const bottomRight = (n) =>
     map(getCharFrom),
     join('')
   );
-
-const topRightRecursively = () => (id) => {
-  const res = topRight(1)(id);
-  console.log('topRightRecursively', document.getElementById(res));
-  return res;
-};
-
-const topLeftRecursively = () => (id) => {
-  const res = topLeft(1)(id);
-  console.log('topLeftRecursively', document.getElementById(res));
-  return res;
-};
-
-const bottomLeftRecursively = () => {
-  let deep = 1;
-  (id) => {
-    const cell = topLeft(deep++)(id);
-    if (document.getElementById(cell.id)) {
-      bottomLeftRecursively()
-    }
-    return cell
-  };
-}
-
-const bottomRightRecursively = () => (id) => {
-  const res = bottomRight(1)(id);
-  console.log('bottomRightRecursively', document.getElementById(res));
-  return res;
-};
-
 const directions = {
   tr: topRight,
   tl: topLeft,
@@ -133,12 +103,6 @@ const directions = {
   all: [topRight, topLeft, bottomLeft, bottomRight],
   forward: [topRight, topLeft],
   backward: [bottomLeft, bottomRight],
-  allRecursively: [
-    topRightRecursively,
-    topLeftRecursively,
-    bottomLeftRecursively,
-    bottomRightRecursively,
-  ],
 };
 
 const convertDiffToDirection = (x) => (y) => {

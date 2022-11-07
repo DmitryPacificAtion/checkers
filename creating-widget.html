@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script
+      crossorigin
+      src="https://unpkg.com/react@17/umd/react.development.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"
+    ></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        font-family: Helvetica;
+      }
+      .get-data-btn {
+        font-size: 14px;
+        line-height: 14px;
+        color: #ffffff;
+        background-color: #21ba45;
+        border-radius: 4px;
+        padding: 10px;
+        text-align: center;
+        display: block;
+        cursor: pointer;
+        user-select: none;
+        position: relative;
+      }
+
+      .header {
+        padding: 0 20px;
+        color: #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 50px;
+        background: #333;
+        overflow: hidden;
+      }
+
+      .popup {
+        list-style: none;
+        margin: 8px 0 0;
+        border-radius: 4px;
+        background: #333;
+        color: #efe;
+        padding: 10px 0;
+        width: 100px;
+        position: absolute;
+        right: 20px;
+      }
+      .popup:before {
+        position: absolute;
+        content: '';
+        width: 12px;
+        height: 12px;
+        background: #333;
+        transform: rotate(45deg);
+        top: -6px;
+        left: calc(50% - 6px);
+      }
+
+      .popup li {
+        padding: 0 20px;
+      }
+
+      .popup li:hover {
+        background: #444;
+        cursor: pointer;
+      }
+
+      .loader,
+      .list-item {
+        font-size: 12px;
+        padding: 15px;
+      }
+    </style>
+    <div id="root"></div>
+  </head>
+  <body>
+    <script type="text/babel">
+      const DEVICES = [
+        {
+          upated: '10/21/2022',
+          device_name: 'Device 1',
+          id: '1',
+          sensors: [
+            {
+              id: '1',
+              attribute: 'Power',
+              currentValue: 'On',
+              units: null,
+            },
+            {
+              id: '2',
+              attribute: 'RSSI',
+              units: 'dBm',
+              currentValue: '-64.11',
+            },
+            {
+              id: '3',
+              attribute: 'Pressure',
+              units: 'kGa',
+              currentValue: '00.00',
+            },
+            {
+              id: '4',
+              attribute: 'Temp',
+              units: '°C',
+              currentValue: '24.4',
+            },
+            {
+              id: '5',
+              attribute: 'Humidity',
+              units: '%',
+              currentValue: '53.17',
+            },
+            {
+              id: '6',
+              attribute: 'Light',
+              units: 'da lx',
+              currentValue: '00.00',
+            },
+            {
+              id: '7',
+              attribute: 'Angle',
+              units: '°',
+              currentValue: '2',
+            },
+            {
+              id: '8',
+              attribute: 'Angle',
+              units: '°',
+              currentValue: '-2',
+            },
+          ],
+        },
+        {
+          upated: '10/21/2022',
+          device_name: 'Device 2',
+          id: '2',
+          sensors: [
+            {
+              id: '1',
+              attribute: 'Power',
+              currentValue: 'On',
+              units: null,
+            },
+            {
+              id: '2',
+              attribute: 'RSSI',
+              units: 'dBm',
+              currentValue: '-64.11',
+            },
+            {
+              id: '3',
+              attribute: 'Pressure',
+              units: 'kGa',
+              currentValue: '00.00',
+            },
+            {
+              id: '4',
+              attribute: 'Temp',
+              units: '°C',
+              currentValue: '24.4',
+            },
+            {
+              id: '5',
+              attribute: 'Humidity',
+              units: '%',
+              currentValue: '16.04',
+            },
+            {
+              id: '6',
+              attribute: 'Light',
+              units: 'da lx',
+              currentValue: '00.00',
+            },
+            {
+              id: '7',
+              attribute: 'Angle',
+              units: '°',
+              currentValue: '2',
+            },
+            {
+              id: '8',
+              attribute: 'Humidity',
+              units: '%',
+              currentValue: '17.1',
+            },
+            {
+              id: '9',
+              attribute: 'Light',
+              units: 'da lx',
+              currentValue: '00.00',
+            },
+            {
+              id: '10',
+              attribute: 'Angle',
+              units: '°',
+              currentValue: '2',
+            },
+          ],
+        },
+        {
+          upated: '10/22/2022',
+          device_name: 'Device 3',
+          id: '3',
+          sensors: [
+            {
+              id: '1',
+              attribute: 'Power',
+              currentValue: 'On',
+              units: null,
+            },
+            {
+              id: '2',
+              attribute: 'RSSI',
+              units: 'dBm',
+              currentValue: '-64.11',
+            },
+            {
+              id: '3',
+              attribute: 'Pressure',
+              units: 'kGa',
+              currentValue: '00.00',
+            },
+            {
+              id: '4',
+              attribute: 'Temp',
+              units: '°C',
+              currentValue: '24.4',
+            },
+            {
+              id: '5',
+              attribute: 'Humidity',
+              units: '%',
+              currentValue: '87.1',
+            },
+            {
+              id: '6',
+              attribute: 'Light',
+              units: 'da lx',
+              currentValue: '00.00',
+            },
+            {
+              id: '7',
+              attribute: 'Angle',
+              units: '°',
+              currentValue: '2',
+            },
+          ],
+        },
+        {
+          upated: '10/22/2022',
+          device_name: 'Device 4',
+          id: '4',
+          sensors: [
+            {
+              id: '1',
+              attribute: 'Power',
+              currentValue: 'On',
+              units: null,
+            },
+            {
+              id: '2',
+              attribute: 'RSSI',
+              units: 'dBm',
+              currentValue: '-64.11',
+            },
+            {
+              id: '3',
+              attribute: 'Pressure',
+              units: 'kGa',
+              currentValue: '00.00',
+            },
+            {
+              id: '4',
+              attribute: 'Temp',
+              units: '°C',
+              currentValue: '24.4',
+            },
+            {
+              id: '5',
+              attribute: 'Humidity',
+              units: '%',
+              currentValue: '99.5',
+            },
+            {
+              id: '6',
+              attribute: 'Light',
+              units: 'da lx',
+              currentValue: '00.00',
+            },
+            {
+              id: '7',
+              attribute: 'Angle',
+              units: '°',
+              currentValue: '2',
+            },
+          ],
+        },
+        {
+          upated: '10/22/2022',
+          device_name: 'Device 5',
+          id: '5',
+          sensors: [
+            {
+              id: '1',
+              attribute: 'Power',
+              currentValue: 'On',
+              units: null,
+            },
+            {
+              id: '2',
+              attribute: 'RSSI',
+              units: 'dBm',
+              currentValue: '-64.11',
+            },
+            {
+              id: '3',
+              attribute: 'Pressure',
+              units: 'kGa',
+              currentValue: '00.00',
+            },
+            {
+              id: '4',
+              attribute: 'Temp',
+              units: '°C',
+              currentValue: '24.4',
+            },
+            {
+              id: '5',
+              attribute: 'Humidity',
+              units: '%',
+              currentValue: '45.9',
+            },
+            {
+              id: '6',
+              attribute: 'Light',
+              units: 'da lx',
+              currentValue: '00.00',
+            },
+            {
+              id: '7',
+              attribute: 'Angle',
+              units: '°',
+              currentValue: '2',
+            },
+          ],
+        },
+        {
+          upated: '10/22/2022',
+          device_name: 'Device 6',
+          id: '6',
+          sensors: [
+            {
+              id: '1',
+              attribute: 'Power',
+              currentValue: 'On',
+              units: null,
+            },
+            {
+              id: '3',
+              attribute: 'Pressure',
+              units: 'kGa',
+              currentValue: '00.00',
+            },
+            {
+              id: '5',
+              attribute: 'Humidity',
+              units: '%',
+              currentValue: '26.93',
+            },
+            {
+              id: '6',
+              attribute: 'Light',
+              units: 'da lx',
+              currentValue: '00.00',
+            },
+          ],
+        },
+        {
+          upated: '10/21/2022',
+          device_name: 'Device 7',
+          id: '7',
+          sensors: [
+            {
+              id: '1',
+              attribute: 'Power',
+              currentValue: 'On',
+              units: null,
+            },
+            {
+              id: '2',
+              attribute: 'RSSI',
+              units: 'dBm',
+              currentValue: '-64.11',
+            },
+            {
+              id: '3',
+              attribute: 'Pressure',
+              units: 'kGa',
+              currentValue: '00.00',
+            },
+          ],
+        },
+        {
+          upated: '10/21/2022',
+          device_name: 'Device 8',
+          id: '8',
+          sensors: [
+            {
+              id: '1',
+              attribute: 'Power',
+              currentValue: 'On',
+              units: null,
+            },
+            {
+              id: '2',
+              attribute: 'RSSI',
+              units: 'dBm',
+              currentValue: '-64.11',
+            },
+            {
+              id: '3',
+              attribute: 'Pressure',
+              units: 'kGa',
+              currentValue: '00.00',
+            },
+            {
+              id: '4',
+              attribute: 'Temp',
+              units: '°C',
+              currentValue: '24.4',
+            },
+            {
+              id: '5',
+              attribute: 'Humidity',
+              units: '%',
+              currentValue: '44.1',
+            },
+            {
+              id: '6',
+              attribute: 'Light',
+              units: 'da lx',
+              currentValue: '00.00',
+            },
+            {
+              id: '7',
+              attribute: 'Angle',
+              units: '°',
+              currentValue: '2',
+            },
+            {
+              id: '8',
+              attribute: 'Power',
+              currentValue: 'On',
+              units: null,
+            },
+            {
+              id: '9',
+              attribute: 'RSSI',
+              units: 'dBm',
+              currentValue: '-64.11',
+            },
+            {
+              id: '10',
+              attribute: 'Pressure',
+              units: 'kGa',
+              currentValue: '00.00',
+            },
+            {
+              id: '11',
+              attribute: 'Temp',
+              units: '°C',
+              currentValue: '24.4',
+            },
+            {
+              id: '12',
+              name: 'Humidity',
+              units: '%',
+              currentValue: '11.11',
+            },
+            {
+              id: '13',
+              name: 'Light',
+              units: 'da lx',
+              currentValue: '00.00',
+            },
+            {
+              id: '14',
+              name: 'Angle',
+              units: '°',
+              currentValue: '2',
+            },
+            {
+              id: '15',
+              name: 'Power',
+              currentValue: 'On',
+              units: null,
+            },
+            {
+              id: '16',
+              name: 'RSSI',
+              units: 'dBm',
+              currentValue: '-64.11',
+            },
+            {
+              id: '17',
+              name: 'Pressure',
+              units: 'kGa',
+              currentValue: '00.00',
+            },
+            {
+              id: '18',
+              name: 'Temp',
+              units: '°C',
+              currentValue: '24.4',
+            },
+            {
+              id: '19',
+              name: 'Humidity',
+              units: '%',
+              currentValue: '9.1',
+            },
+            {
+              id: '20',
+              name: 'Light',
+              units: 'da lx',
+              currentValue: '00.00',
+            },
+            {
+              id: '21',
+              name: 'Power',
+              currentValue: 'On',
+              units: null,
+            },
+            {
+              id: '22',
+              name: 'RSSI',
+              units: 'dBm',
+              currentValue: '-64.11',
+            },
+            {
+              id: '23',
+              name: 'Pressure',
+              units: 'kGa',
+              currentValue: '00.00',
+            },
+            {
+              id: '24',
+              name: 'Temp',
+              units: '°C',
+              currentValue: '24.4',
+            },
+            {
+              id: '25',
+              name: 'Humidity',
+              units: '%',
+              currentValue: '89.3',
+            },
+            {
+              id: '26',
+              name: 'Light',
+              units: 'da lx',
+              currentValue: '00.00',
+            },
+            {
+              id: '27',
+              name: 'Angle',
+              units: '°',
+              currentValue: '2',
+            },
+          ],
+        },
+      ];
+
+      function debounce() {
+        // Implement me
+      }
+
+      const fetchData = () => {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(DEVICES);
+          }, 2000);
+        });
+      };
+
+      const Widget = () => {
+        const handleClick = () => {
+          setShowPopup(!showPopup);
+          debounce(
+            fetchData().then((list) => {
+              setData(list);
+            })
+          );
+          if (!showPopup) {
+            setData([]); // Close connection and clear data
+          }
+        };
+
+        /*
+          upated: '10/21/2022',
+          device_name: 'Device 1',
+          id: '1',
+          sensors: [
+            {
+              id: '5',
+              attribute: 'Humidity',
+              units: '%',
+              currentValue: '53.17',
+            },
+          ]
+        */
+
+        return (
+          <div className='widget'>
+            <div className='get-data-btn'>
+              Get data
+            </div>
+            {
+              // Create a <Popup /> component here
+            }
+          </div>
+        );
+      };
+
+      const App = () => (
+        <header className='header'>
+          <img alt='Logo' src='/img/favicon.png' />
+          <Widget />
+        </header>
+      );
+
+      ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+  </body>
+</html>

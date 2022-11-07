@@ -1,6 +1,17 @@
 const defaultArrangements = {
-  [CONSTANTS.FRIEND]: ['a7', 'e3', 'g7'],
-  [CONSTANTS.ALIEN]: ['h6', 'f2', 'b2'],
+  // [CONSTANTS.FRIEND]: ['a7', 'e3'],
+  // [CONSTANTS.ALIEN]: ['d6', 'b4'],
+  [CONSTANTS.FRIEND]: [
+    'a7', 'g7', 'e1',
+    'b4', 'd6', 'e3',
+    'b2', 'h2',
+  ],
+  [CONSTANTS.ALIEN]: [
+    'b8', 'f8', 'h8',
+    'b6', 'f6', 'h6',
+    'a3', 'c3', 'f2',
+    'a1', 'c1', 'g1'
+  ],
   // [CONSTANTS.FRIEND]: [
   //   'a1', 'c1', 'e1', 'g1',
   //   'b2', 'd2', 'f2', 'h2',
@@ -10,23 +21,27 @@ const defaultArrangements = {
   //   'b8', 'd8', 'f8', 'h8',
   //   'a7', 'c7', 'e7', 'g7',
   //   'b6', 'd6', 'f6', 'h6',
-  // ],
+  // ]
 };
 
 const setPointers = () => {
-  document.querySelectorAll(`.${getTurn()}`).forEach(cell => cell.classList.add('pointer'));
-}
+  document
+    .querySelectorAll(`.${getTurn()}`)
+    .forEach((cell) => cell.classList.add('pointer'));
+};
 
 const clearPointers = () => {
-  document.querySelectorAll('.pointer').forEach(cell => cell.classList.remove('pointer'));
-}
+  document
+    .querySelectorAll('.pointer')
+    .forEach((cell) => cell.classList.remove('pointer'));
+};
 
 const clearPossibleStepsSelection = () => {
-  document.querySelectorAll(`.${CONSTANTS.POSSIBLE_STEP}`).forEach(cell => {
+  document.querySelectorAll(`.${CONSTANTS.POSSIBLE_STEP}`).forEach((cell) => {
     cell.classList.remove(CONSTANTS.POSSIBLE_STEP);
     cell.onclick = null;
   });
-  document.querySelectorAll(`.${CONSTANTS.POSSIBLE_ATTACK}`).forEach(cell => {
+  document.querySelectorAll(`.${CONSTANTS.POSSIBLE_ATTACK}`).forEach((cell) => {
     cell.classList.remove(CONSTANTS.POSSIBLE_ATTACK);
   });
 };
@@ -37,9 +52,10 @@ const clearReadyField = () => {
 
 const endTurn = () => {
   const turn = getTurn();
+  clearReadyField();
   clearPossibleStepsSelection();
-  clearPointers();
 
+  clearPointers();
   if (isEquals(CONSTANTS.FRIEND)(turn)) {
     setTurn(CONSTANTS.ALIEN);
   } else {
@@ -47,122 +63,131 @@ const endTurn = () => {
   }
 
   setPointers();
+
+  
 };
 
-const onMoveHandler = (fromId) => ({ target }) => {
-  const source = document.getElementById(fromId);
-  source.classList.remove(CONSTANTS.READY, getTurn());
-  target.classList.add(getTurn());
-  isQueen(target) && upgradeToQueen(target);
-  endTurn();
-};
+const onMoveHandler =
+  (fromId) =>
+  ({ target }) => {
+    const source = getFieldById(fromId);
+    target.appendChild(source.firstChild);
+    shouldUpgrateToQueen(target.firstChild) &&
+      upgradeToQueen(target.firstChild);
+    source.innerHTML = null;
+    endTurn();
+  };
 
-const onAtackHandler = fromId => ({ target }) => {
-  const [resultDirection] = directions.diff(fromId, target.id);
+const onAtackHandler =
+  (fromId) =>
+  ({ target }) => {
+    const [resultDirection] = directions.diff(fromId, target.id);
 
-  const source = getFieldById(fromId);
-  const enemyId = resultDirection(1)(target.id);
-  const enemy = getFieldById(enemyId);
+    const source = getFieldById(fromId);
+    const enemyId = resultDirection(1)(target.id);
+    const enemy = getFieldById(enemyId);
 
-  // if (enemy) {
-  //   source.classList.remove(getTurn());
-  //   enemy.classList.remove(get);
-  //   enemy.classList.add('remove-checker');
+    if (enemy) {
+      target.appendChild(source.firstChild);
+      enemy.firstChild.classList.add('remove-checker');
 
-  //   setTimeout(() => {
-  //     clearPossibleStepsSelection();
+      setTimeout(() => {
+        enemy.innerHTML = null;
+        clearPossibleStepsSelection();
 
-  //     const arr = directions.all
-  //       .map(defineCellsForAttack(target.id))
-  //       .filter(is);
-  //     if (arr.length === 0) {
-  //       target.onclick = onClickChecker;
-  //       endTurn();
-  //     }
-  //   }, 500);
-  // }
-};
+        const arr = directions.all.map(defineCellsForAttack(target)).filter(is);
+        if (arr.length === 0) {
+          target.onclick = null;
+          endTurn();
+        }
+      }, 500);
+    }
+  };
 
-const defineCellsForAttack = (target) => (direction) => {
-  const nextCell = getFieldById(direction(1)(target.id));
+const defineCellsForAttack = (cell) => (direction) => {
+  const cellsForAttack = [];
+  for (var index = 1; ; index++) {
+    const nextCell = document.getElementById(direction(index)(cell.id));
+    const cellAfterNext = getFieldById(direction(index + 1)(cell.id));
 
-  if (hasEnemy(nextCell.firstChild)) {
-    const cellAfterEnemy = getFieldById(direction(2)(target.id));
-
-    if (cellAfterEnemy && isCellEmpty(cellAfterEnemy)) {
-      highlightCellForAttack(nextCell);
-      highlightCellForMove(cellAfterEnemy);
-      cellAfterEnemy.onclick = onAtackHandler(target.id);
-      return cellAfterEnemy;
+    if(!(nextCell && cellAfterNext)) return null;
+    if (hasEnemy(nextCell) && isCellEmpty(cellAfterNext)) {
+      cellsForAttack.push(nextCell);
+      !isCellEmpty(nextCell) && highlightCellForMove(cellAfterNext);
+      cellAfterNext.onclick = onAtackHandler(cell.id);
+      return cellsForAttack.map(highlightCellForAttack);
+    } else if (isQueen(cell.firstChild) && isCellEmpty(nextCell)) {
+      continue;
+    } else {
+      return null;
     }
   }
-  return null;
 };
 
-const defineCellsToMove = (id) => (direction) => {
-  const nextCell = document.getElementById(direction(1)(id));
-
-  if (nextCell && isCellEmpty(nextCell)) {
-    highlightCellForMove(nextCell);
-
-    nextCell.onclick = onMoveHandler(id);
+const defineCellsToMove = (cell) => (direction) => {
+  const foundCells = [];
+  for (var index = 1; ; index++) {
+    const nextCell = document.getElementById(direction(index)(cell.id));
+    if (!nextCell || !isCellEmpty(nextCell)) break; // Skip undefined cells
+    nextCell.onclick = onMoveHandler(cell.id);
+    foundCells.push(nextCell);
+    if (!isQueen(cell.firstChild)) {
+      // If cell is !isQueen - finish
+      break;
+    }
   }
 
-  return null;
+  return foundCells.map(highlightCellForMove);
 };
 
-const definePossibleSteps = (target) => {
-  const directionsForAttack = directions.all
-    .map(defineCellsForAttack(target))
-    .filter(is);
-
+const definePossibleSteps = (cell) => {
+  const { firstChild: target } = cell;
+  const directionsForAttack = directions.all.map(
+    defineCellsForAttack(cell)
+  ).filter(is);
   if (directionsForAttack.length === 0) {
-    let waysToMove = [];
-
-    if(isQueen(target)) {
-      // console.log('friend queen');
+    if (isQueen(target)) {
+      directions.all.forEach(defineCellsToMove(cell));
     } else {
       if (getTurn() === CONSTANTS.FRIEND) {
-        // console.log('friend simple');
-        waysToMove = directions.forward;
-    } else {
-        // console.log('enemy simple');
-        waysToMove = directions.backward;
+        directions.forward.forEach(defineCellsToMove(cell));
+      } else {
+        directions.backward.forEach(defineCellsToMove(cell));
       }
     }
-
-    waysToMove.forEach(defineCellsToMove(target.id))
   }
+
+  return directionsForAttack;
 };
 
 const onClickChecker = ({ target }) => {
-  if (getFieldById(target.id)) {
-    clearPossibleStepsSelection();
+  const { parentNode: cell } = target;
+  if (getFieldById(cell.id)) {
     clearReadyField();
+    clearPossibleStepsSelection();
   }
 
   if (target.dataset[getTurn()]) {
     // console.time('select-checker');
     target.classList.add(CONSTANTS.READY);
-    console.log('click', target);
-    definePossibleSteps(target);
-
+    definePossibleSteps(cell);
     // console.timeEnd('select-checker');
   }
 };
 
-const createChecker = (field, teamName, index) => {
-  field.addEventListener('click', onClickChecker);
-  field.classList.add(teamName);
-  field.setAttribute(`data-${teamName}`, index);
+const createChecker = (name, index) => {
+  const div = document.createElement('div');
+  div.addEventListener('click', onClickChecker);
+
+  div.classList.add(name);
+  div.setAttribute(`data-${name}`, index);
+  return div;
 };
 
-const putCheckerToTheBoard = (field, index) => {
-  if (defaultArrangements[CONSTANTS.FRIEND].includes(field.id)) {
-    createChecker(field, CONSTANTS.FRIEND, index);
-  }
-  if (defaultArrangements[CONSTANTS.ALIEN].includes(field.id)) {
-    createChecker(field, CONSTANTS.ALIEN, index);
+const putCheckerToTheBoard = (name, field, index) => {
+  if (defaultArrangements[name].includes(field.id)) {
+    const checker = createChecker(name, index);
+    field.appendChild(checker);
   }
 };
 
@@ -171,10 +196,9 @@ function init() {
   // TODO: Reduce amount of <div />
 
   getFieldsHTML().forEach((field, index) => {
-    putCheckerToTheBoard(field, index);
+    putCheckerToTheBoard(CONSTANTS.FRIEND, field, index);
+    putCheckerToTheBoard(CONSTANTS.ALIEN, field, index);
   });
-
-  setPointers()
 }
 
 (function () {

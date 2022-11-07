@@ -1,6 +1,6 @@
 const defaultArrangements = {
   [CONSTANTS.FRIEND]: ['a7', 'e3'],
-  [CONSTANTS.ALIEN]: ['d6', 'b2'],
+  [CONSTANTS.ALIEN]: ['d6', 'b4'],
   // [CONSTANTS.FRIEND]: [
   //   'a7', 'g7', 'e1',
   //   'b4', 'd6', 'e3',
@@ -103,15 +103,17 @@ const onAtackHandler =
   };
 
 const defineCellsForAttack = (cell) => (direction) => {
+  const cellsForAttack = [];
   for (var index = 1; ; index++) {
     const nextCell = document.getElementById(direction(index)(cell.id));
     const cellAfterNext = getFieldById(direction(index + 1)(cell.id));
 
     if(!(nextCell && cellAfterNext)) return null;
     if (hasEnemy(nextCell)) {
-      highlightCellForAttack(nextCell);
-      highlightCellForMove(cellAfterNext);
+      cellsForAttack.push(nextCell);
+      !isCellEmpty(nextCell) && highlightCellForMove(cellAfterNext);
       cellAfterNext.onclick = onAtackHandler(cell.id);
+      return cellsForAttack.map(highlightCellForAttack);
     } else if (isQueen(cell.firstChild) && isCellEmpty(nextCell)) {
       continue;
     } else {
@@ -133,7 +135,7 @@ const defineCellsToMove = (cell) => (direction) => {
     }
   }
 
-  return foundCells.map(a => highlightCellForMove(a, 'defineCellsToMove'));
+  return foundCells.map(highlightCellForMove);
 };
 
 const definePossibleSteps = (cell) => {
@@ -141,10 +143,10 @@ const definePossibleSteps = (cell) => {
   const directionsForAttack = directions.all.map(
     defineCellsForAttack(cell)
   ).filter(is);
-  if (isQueen(target)) {
-    directions.all.forEach(defineCellsToMove(cell));
-  } else {
-    if (directionsForAttack.length === 0) {
+  if (directionsForAttack.length === 0) {
+    if (isQueen(target)) {
+      directions.all.forEach(defineCellsToMove(cell));
+    } else {
       if (getTurn() === CONSTANTS.FRIEND) {
         directions.forward.forEach(defineCellsToMove(cell));
       } else {

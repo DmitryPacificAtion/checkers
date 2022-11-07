@@ -1,17 +1,17 @@
 const defaultArrangements = {
-  [CONSTANTS.FRIEND]: ['a7', 'e3'],
-  [CONSTANTS.ALIEN]: ['d6', 'b4'],
-  // [CONSTANTS.FRIEND]: [
-  //   'a7', 'g7', 'e1',
-  //   'b4', 'd6', 'e3',
-  //   'b2', 'h2',
-  // ],
-  // [CONSTANTS.ALIEN]: [
-  //   'b8', 'f8', 'h8',
-  //   'b6', 'f6', 'h6',
-  //   'a3', 'c3', 'f2',
-  //   'a1', 'c1', 'g1'
-  // ],
+  // [CONSTANTS.FRIEND]: ['a7', 'e3'],
+  // [CONSTANTS.ALIEN]: ['d6', 'b4'],
+  [CONSTANTS.FRIEND]: [
+    'a7', 'g7', 'e1',
+    'b4', 'd6', 'e3',
+    'b2', 'h2',
+  ],
+  [CONSTANTS.ALIEN]: [
+    'b8', 'f8', 'h8',
+    'b6', 'f6', 'h6',
+    'a3', 'c3', 'f2',
+    'a1', 'c1', 'g1'
+  ],
   // [CONSTANTS.FRIEND]: [
   //   'a1', 'c1', 'e1', 'g1',
   //   'b2', 'd2', 'f2', 'h2',
@@ -50,11 +50,11 @@ const clearReadyField = () => {
   document.querySelector('.ready')?.classList.remove(CONSTANTS.READY);
 };
 
-const endTurn = (label) => {
+const endTurn = () => {
   const turn = getTurn();
   clearReadyField();
   clearPossibleStepsSelection();
-  console.log('endTurn', label);
+
   clearPointers();
   if (isEquals(CONSTANTS.FRIEND)(turn)) {
     setTurn(CONSTANTS.ALIEN);
@@ -73,7 +73,7 @@ const onMoveHandler =
     shouldUpgrateToQueen(target.firstChild) &&
       upgradeToQueen(target.firstChild);
     source.innerHTML = null;
-    endTurn('onMoveHandler');
+    endTurn();
   };
 
 const onAtackHandler =
@@ -96,7 +96,7 @@ const onAtackHandler =
         const arr = directions.all.map(defineCellsForAttack(target)).filter(is);
         if (arr.length === 0) {
           target.onclick = null;
-          endTurn('onAtackHandler');
+          endTurn();
         }
       }, 500);
     }
@@ -109,7 +109,7 @@ const defineCellsForAttack = (cell) => (direction) => {
     const cellAfterNext = getFieldById(direction(index + 1)(cell.id));
 
     if(!(nextCell && cellAfterNext)) return null;
-    if (hasEnemy(nextCell)) {
+    if (hasEnemy(nextCell) && isCellEmpty(cellAfterNext)) {
       cellsForAttack.push(nextCell);
       !isCellEmpty(nextCell) && highlightCellForMove(cellAfterNext);
       cellAfterNext.onclick = onAtackHandler(cell.id);

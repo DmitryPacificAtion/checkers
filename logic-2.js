@@ -1,10 +1,6 @@
 const defaultArrangements = {
-  [CONSTANTS.FRIEND]: [
-    'a7', 'e3', 'g7'
-  ],
-  [CONSTANTS.ALIEN]: [
-    'h6', 'f2', 'b2',
-  ],
+  [CONSTANTS.FRIEND]: ['a7', 'e3'],
+  [CONSTANTS.ALIEN]: ['d6', 'b2'],
   // [CONSTANTS.FRIEND]: [
   //   'a7', 'g7', 'e1',
   //   'b4', 'd6', 'e3',
@@ -26,22 +22,26 @@ const defaultArrangements = {
   //   'a7', 'c7', 'e7', 'g7',
   //   'b6', 'd6', 'f6', 'h6',
   // ]
-}
+};
 
 const setPointers = () => {
-  document.querySelectorAll(`.${getTurn()}`).forEach(cell => cell.classList.add('pointer'));
-}
+  document
+    .querySelectorAll(`.${getTurn()}`)
+    .forEach((cell) => cell.classList.add('pointer'));
+};
 
 const clearPointers = () => {
-  document.querySelectorAll('.pointer').forEach(cell => cell.classList.remove('pointer'));
-}
+  document
+    .querySelectorAll('.pointer')
+    .forEach((cell) => cell.classList.remove('pointer'));
+};
 
 const clearPossibleStepsSelection = () => {
-  document.querySelectorAll(`.${CONSTANTS.POSSIBLE_STEP}`).forEach(cell => {
+  document.querySelectorAll(`.${CONSTANTS.POSSIBLE_STEP}`).forEach((cell) => {
     cell.classList.remove(CONSTANTS.POSSIBLE_STEP);
     cell.onclick = null;
   });
-  document.querySelectorAll(`.${CONSTANTS.POSSIBLE_ATTACK}`).forEach(cell => {
+  document.querySelectorAll(`.${CONSTANTS.POSSIBLE_ATTACK}`).forEach((cell) => {
     cell.classList.remove(CONSTANTS.POSSIBLE_ATTACK);
   });
 };
@@ -50,11 +50,11 @@ const clearReadyField = () => {
   document.querySelector('.ready')?.classList.remove(CONSTANTS.READY);
 };
 
-const endTurn = () => {
+const endTurn = (label) => {
   const turn = getTurn();
   clearReadyField();
   clearPossibleStepsSelection();
-
+  console.log('endTurn', label);
   clearPointers();
   if (isEquals(CONSTANTS.FRIEND)(turn)) {
     setTurn(CONSTANTS.ALIEN);
@@ -63,95 +63,97 @@ const endTurn = () => {
   }
 
   setPointers();
-}
+};
 
-const onMoveHandler = fromId => ({ target }) => {
-  const source = getFieldById(fromId);
-  target.appendChild(source.firstChild);
-
-  isQueen(target.firstChild) && upgradeToQueen(target.firstChild);
-  source.innerHTML = null;
-  endTurn();
-}
-
-const onAtackHandler = fromId => ({ target }) => {
-  const [resultDirection] = directions.diff(fromId, target.id);
-
-  const source = getFieldById(fromId);
-  const enemyId = resultDirection(1)(target.id);
-  const enemy = getFieldById(enemyId);
-
-  if (enemy) {
+const onMoveHandler =
+  (fromId) =>
+  ({ target }) => {
+    const source = getFieldById(fromId);
     target.appendChild(source.firstChild);
-    enemy.firstChild.classList.add('remove-checker');
+    shouldUpgrateToQueen(target.firstChild) &&
+      upgradeToQueen(target.firstChild);
+    source.innerHTML = null;
+    endTurn('onMoveHandler');
+  };
 
-    setTimeout(() => {
-      enemy.innerHTML = null;
-      clearPossibleStepsSelection();
+const onAtackHandler =
+  (fromId) =>
+  ({ target }) => {
+    const [resultDirection] = directions.diff(fromId, target.id);
 
-      const arr = directions.all.map(defineCellsForAttack(target.id)).filter(is);
-      if(arr.length === 0) {
-        isQueen(target);
-        target.onclick = null;
-        endTurn();
-      }
-    }, 500);
+    const source = getFieldById(fromId);
+    const enemyId = resultDirection(1)(target.id);
+    const enemy = getFieldById(enemyId);
+
+    if (enemy) {
+      target.appendChild(source.firstChild);
+      enemy.firstChild.classList.add('remove-checker');
+
+      setTimeout(() => {
+        enemy.innerHTML = null;
+        clearPossibleStepsSelection();
+
+        const arr = directions.all.map(defineCellsForAttack(target)).filter(is);
+        if (arr.length === 0) {
+          target.onclick = null;
+          endTurn('onAtackHandler');
+        }
+      }, 500);
+    }
+  };
+
+const defineCellsForAttack = (cell) => (direction) => {
+  for (var index = 1; ; index++) {
+    const nextCell = document.getElementById(direction(index)(cell.id));
+    const cellAfterNext = getFieldById(direction(index + 1)(cell.id));
+
+    if(!(nextCell && cellAfterNext)) return null;
+    if (hasEnemy(nextCell)) {
+      highlightCellForAttack(nextCell);
+      highlightCellForMove(cellAfterNext);
+      cellAfterNext.onclick = onAtackHandler(cell.id);
+    } else if (isQueen(cell.firstChild) && isCellEmpty(nextCell)) {
+      continue;
+    } else {
+      return null;
+    }
   }
 };
 
-const defineCellsForAttack = id => direction => {
-  const enemyCell = getFieldById(direction(1)(id));
-
-  if (hasEnemy(enemyCell)) {
-    const cellAfterEnemy = getFieldById(direction(2)(id));
-
-    if(cellAfterEnemy && isCellEmpty(cellAfterEnemy)) {
-      highlightCellForAttack(enemyCell);
-      highlightCellForMove(cellAfterEnemy);
-
-      cellAfterEnemy.onclick = onAtackHandler(id);
-      return cellAfterEnemy;
-    }
-  }
-
-  return null;
-}
-
-const defineCellsToMove = (cell) => direction => {
+const defineCellsToMove = (cell) => (direction) => {
   const foundCells = [];
-  console.log('defineCellsToMove cell', cell);
   for (var index = 1; ; index++) {
     const nextCell = document.getElementById(direction(index)(cell.id));
-    if (!nextCell) break;
+    if (!nextCell || !isCellEmpty(nextCell)) break; // Skip undefined cells
     nextCell.onclick = onMoveHandler(cell.id);
-    highlightCellForMove(nextCell);
     foundCells.push(nextCell);
-    console.log('is queen', isQueen(cell.firstChild), cell.firstChild);
     if (!isQueen(cell.firstChild)) {
+      // If cell is !isQueen - finish
       break;
     }
   }
 
-  console.log('foundCells', foundCells);
-}
+  return foundCells.map(a => highlightCellForMove(a, 'defineCellsToMove'));
+};
 
 const definePossibleSteps = (cell) => {
   const { firstChild: target } = cell;
-  const directionsForAttack = directions.all.map(defineCellsForAttack(cell.id)).filter(is);
-  if(isQueen(target)) {
-    directions.all.map(defineCellsToMove(cell)).filter(is).forEach(highlightCellForMove);
+  const directionsForAttack = directions.all.map(
+    defineCellsForAttack(cell)
+  ).filter(is);
+  if (isQueen(target)) {
+    directions.all.forEach(defineCellsToMove(cell));
   } else {
     if (directionsForAttack.length === 0) {
       if (getTurn() === CONSTANTS.FRIEND) {
-        directions.forward.map(defineCellsToMove(cell)).filter(is).forEach(highlightCellForMove);
+        directions.forward.forEach(defineCellsToMove(cell));
       } else {
-        directions.backward.map(defineCellsToMove(cell)).filter(is).forEach(highlightCellForMove);
+        directions.backward.forEach(defineCellsToMove(cell));
       }
     }
   }
 
   return directionsForAttack;
-
 };
 
 const onClickChecker = ({ target }) => {
@@ -181,7 +183,6 @@ const createChecker = (name, index) => {
 const putCheckerToTheBoard = (name, field, index) => {
   if (defaultArrangements[name].includes(field.id)) {
     const checker = createChecker(name, index);
-    field.id === 'b8' && upgradeToQueen(checker)
     field.appendChild(checker);
   }
 };
@@ -194,8 +195,8 @@ function init() {
     putCheckerToTheBoard(CONSTANTS.FRIEND, field, index);
     putCheckerToTheBoard(CONSTANTS.ALIEN, field, index);
   });
-};
+}
 
-(function() {
+(function () {
   init();
-})()
+})();

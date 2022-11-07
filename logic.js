@@ -86,7 +86,6 @@ const onAtackHandler = fromId => ({ target }) => {
 const defineCellsForAttack = (target) => (direction) => {
   const nextCell = getFieldById(direction(1)(target.id));
 
-  console.log('nextCell.firstChild', nextCell.firstChild);
   if (hasEnemy(nextCell.firstChild)) {
     const cellAfterEnemy = getFieldById(direction(2)(target.id));
 

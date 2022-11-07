@@ -2,6 +2,7 @@ const CONSTANTS = {
   FRIEND: 'friend',
   ALIEN: 'alien',
   READY: 'ready',
+  QUEEN: 'queen',
   POSSIBLE_ATTACK: 'possible-attack',
   POSSIBLE_STEP: 'possible-step',
 };
@@ -38,11 +39,14 @@ const getInnerCell = cell => cell.firstChild
 const isCellEmpty = cell => cell ? getInnerCell(cell) === null : true
 const hasFriend = cell => isCellEmpty(cell)
   ? false
-  : isEquals(getInnerCell(cell).classList.value)(getTurn())
+  : getInnerCell(cell)?.classList.contains(getTurn())
 
-const hasEnemy = cell => isCellEmpty(cell)
+const hasEnemy = cell => {
+  const cond = isCellEmpty(cell)
   ? false
-  : !isEquals(getInnerCell(cell).classList.value)(getTurn())
+  : !getInnerCell(cell)?.classList.contains(getTurn())
+  return cond; 
+}
 
 const isCellEmptyNew = (cell) => {
   return (
@@ -61,7 +65,7 @@ const hasEnemyNew= (cell) =>
   isCellEmpty(cell) ? false : !isEquals(cell?.classList.value)(getTurn());
 
 const highlightCellForMove = (step) => {
-  step.classList.add(CONSTANTS.POSSIBLE_STEP);
+  step.classList?.add(CONSTANTS.POSSIBLE_STEP);
 };
 
 const highlightCellForAttack = (step) => {
@@ -134,7 +138,9 @@ Object.defineProperty(directions, 'diff', {
 // const lookForOneStep = curry(1);
 // const lookForTwoSteps = curry(2);
 
-const isQueen = (target) => {
+const isQueen = (target) => target.classList.contains(CONSTANTS.QUEEN)
+
+const shouldUpgrateToQueen = (target) => {
   const friendCheck =
   target.classList.contains(CONSTANTS.FRIEND) &&
     QUEEN_FOR_FRIEND_INDEXES.includes(target.parentNode.id);
@@ -149,5 +155,5 @@ const isQueen = (target) => {
 };
 
 const upgradeToQueen = (target) => {
-  target.classList.add('queen');
+  target.classList.add(CONSTANTS.QUEEN);
 };

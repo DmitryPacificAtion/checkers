@@ -11,7 +11,6 @@
   <script defer src="./logic.js"></script>
 </head>
 <body>
-  <header></header>
   <main>
     <div id="turn" class="turn" data-turn="friend">Turn:</div>
     <div class="horisontal">
@@ -67,6 +66,11 @@
       <div class="cell" id="c1"></div>
       <div class="cell" id="e1"></div>
       <div class="cell" id="g1"></div>
+    </div>
+    <div class="score-board">
+      <p>White: <span class="score-board__in-game"></span></p>
+      <p>Black: <span class="score-board__in-game"></span></p>
+      <button type="button" id="give-up">Give up</button>
     </div>
   </main>
 </body>

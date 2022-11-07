@@ -1,17 +1,17 @@
 const defaultArrangements = {
-  // [CONSTANTS.FRIEND]: ['a7', 'e3'],
-  // [CONSTANTS.ALIEN]: ['d6', 'b4'],
-  [CONSTANTS.FRIEND]: [
-    'a7', 'g7', 'e1',
-    'b4', 'd6', 'e3',
-    'b2', 'h2',
-  ],
-  [CONSTANTS.ALIEN]: [
-    'b8', 'f8', 'h8',
-    'b6', 'f6', 'h6',
-    'a3', 'c3', 'f2',
-    'a1', 'c1', 'g1'
-  ],
+  [CONSTANTS.FRIEND]: ['a7', 'e3'],
+  [CONSTANTS.ALIEN]: ['d6', 'b4'],
+  // [CONSTANTS.FRIEND]: [
+  //   'a7', 'g7', 'e1',
+  //   'b4', 'd6', 'e3',
+  //   'b2', 'h2',
+  // ],
+  // [CONSTANTS.ALIEN]: [
+  //   'b8', 'f8', 'h8',
+  //   'b6', 'f6', 'h6',
+  //   'a3', 'c3', 'f2',
+  //   'a1', 'c1', 'g1'
+  // ],
   // [CONSTANTS.FRIEND]: [
   //   'a1', 'c1', 'e1', 'g1',
   //   'b2', 'd2', 'f2', 'h2',
@@ -24,47 +24,23 @@ const defaultArrangements = {
   // ]
 };
 
-const setPointers = () => {
-  document
-    .querySelectorAll(`.${getTurn()}`)
-    .forEach((cell) => cell.classList.add('pointer'));
-};
-
-const clearPointers = () => {
-  document
-    .querySelectorAll('.pointer')
-    .forEach((cell) => cell.classList.remove('pointer'));
-};
-
-const clearPossibleStepsSelection = () => {
-  document.querySelectorAll(`.${CONSTANTS.POSSIBLE_STEP}`).forEach((cell) => {
-    cell.classList.remove(CONSTANTS.POSSIBLE_STEP);
-    cell.onclick = null;
-  });
-  document.querySelectorAll(`.${CONSTANTS.POSSIBLE_ATTACK}`).forEach((cell) => {
-    cell.classList.remove(CONSTANTS.POSSIBLE_ATTACK);
-  });
-};
-
-const clearReadyField = () => {
-  document.querySelector('.ready')?.classList.remove(CONSTANTS.READY);
-};
-
 const endTurn = () => {
   const turn = getTurn();
   clearReadyField();
   clearPossibleStepsSelection();
 
   clearPointers();
-  if (isEquals(CONSTANTS.FRIEND)(turn)) {
-    setTurn(CONSTANTS.ALIEN);
+  if (isWinner(turn)) {
+    showWinnerModal(turn);
+    endGame();
   } else {
-    setTurn(CONSTANTS.FRIEND);
+    if (isEquals(CONSTANTS.FRIEND)(turn)) {
+      setTurn(CONSTANTS.ALIEN);
+    } else {
+      setTurn(CONSTANTS.FRIEND);
+    }
+    setPointers(turn);
   }
-
-  setPointers();
-
-  
 };
 
 const onMoveHandler =
@@ -110,7 +86,7 @@ const defineCellsForAttack = (cell) => (direction) => {
     const nextCell = document.getElementById(direction(index)(cell.id));
     const cellAfterNext = getFieldById(direction(index + 1)(cell.id));
 
-    if(!(nextCell && cellAfterNext)) return null;
+    if (!(nextCell && cellAfterNext)) return null;
     if (hasEnemy(nextCell) && isCellEmpty(cellAfterNext)) {
       cellsForAttack.push(nextCell);
       !isCellEmpty(nextCell) && highlightCellForMove(cellAfterNext);
@@ -142,9 +118,9 @@ const defineCellsToMove = (cell) => (direction) => {
 
 const definePossibleSteps = (cell) => {
   const { firstChild: target } = cell;
-  const directionsForAttack = directions.all.map(
-    defineCellsForAttack(cell)
-  ).filter(is);
+  const directionsForAttack = directions.all
+    .map(defineCellsForAttack(cell))
+    .filter(is);
   if (directionsForAttack.length === 0) {
     if (isQueen(target)) {
       directions.all.forEach(defineCellsToMove(cell));
@@ -203,4 +179,5 @@ function init() {
 
 (function () {
   init();
+  document.getElementById('give-up').addEventListener('click', giveUp)
 })();

@@ -27,13 +27,63 @@ const getFieldById = (id) => getFieldsObject()[id];
 const getCharAt = (p) => p.toString().charCodeAt();
 const getCoordinates = (id) => id.split('').map(getCharAt);
 const getCharFrom = (n) => String.fromCharCode(n);
+const oppositePlayer = (turn) => players[+!players[turn]];
 const getTurn = () => {
   const { turn } = document.getElementById('turn').dataset;
   return turn;
 };
+const clearPossibleStepsSelection = () => {
+  document.querySelectorAll(`.${CONSTANTS.POSSIBLE_STEP}`).forEach((cell) => {
+    cell.classList.remove(CONSTANTS.POSSIBLE_STEP);
+    cell.onclick = null;
+  });
+  document.querySelectorAll(`.${CONSTANTS.POSSIBLE_ATTACK}`).forEach((cell) => {
+    cell.classList.remove(CONSTANTS.POSSIBLE_ATTACK);
+  });
+};
+
+const clearReadyField = () => {
+  document.querySelector('.ready')?.classList.remove(CONSTANTS.READY);
+};
 const setTurn = (turn) => {
   document.getElementById('turn').setAttribute('data-turn', turn);
 };
+const setPointers = (turn) => {
+  document
+    .querySelectorAll(`.${turn}`)
+    .forEach((cell) => cell.classList.add('pointer'));
+};
+const clearPointers = () => {
+  document
+    .querySelectorAll('.pointer')
+    .forEach((cell) => cell.classList.remove('pointer'));
+};
+const isWinner = (turn) => {
+  const alients = document.querySelectorAll(`.${oppositePlayer(turn)}`)
+  return alients.length === 0;
+}
+const showWinnerModal = (turn) => {
+  const color = isEquals(turn)(CONSTANTS.FRIEND) ? 'White' : 'Black';
+  alert(`${color} player is winner!`);
+}
+const endGame = () => {
+  Object.values(document.querySelectorAll(`.${CONSTANTS.FRIEND}`)).forEach((cell) => {
+    cell.onclick = null;
+    cell.removeEventListener('click', onClickChecker);
+  });
+  Object.values(document.querySelectorAll(`.${CONSTANTS.ALIEN}`)).forEach((cell) => {
+    cell.onclick = null;
+    cell.removeEventListener('click', onClickChecker);
+  });
+  clearPointers();
+  document.getElementById('give-up').removeEventListener('click', giveUp);
+}
+const giveUp = () => {
+  showWinnerModal(oppositePlayer(getTurn()));
+  clearReadyField();
+  clearPossibleStepsSelection();
+  endGame();
+}
 
 const getInnerCell = cell => cell.firstChild
 const isCellEmpty = cell => cell ? getInnerCell(cell) === null : true

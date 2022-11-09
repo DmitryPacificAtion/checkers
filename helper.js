@@ -207,3 +207,11 @@ const shouldUpgrateToQueen = (target) => {
 const upgradeToQueen = (target) => {
   target.classList.add(CONSTANTS.QUEEN);
 };
+
+const updateScore = () => {
+  const total = document.querySelectorAll('.score-board__in-game');
+  const friends = document.querySelectorAll(`.${CONSTANTS.FRIEND}`);
+  const aliens = document.querySelectorAll(`.${CONSTANTS.ALIEN}`);
+  total[0].innerText = friends.length;
+  total[1].innerText = aliens.length;
+}

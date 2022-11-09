@@ -76,6 +76,7 @@ const onAtackHandler =
           target.onclick = null;
           endTurn();
         }
+        updateScore();
       }, 500);
     }
   };
@@ -175,6 +176,7 @@ function init() {
     putCheckerToTheBoard(CONSTANTS.FRIEND, field, index);
     putCheckerToTheBoard(CONSTANTS.ALIEN, field, index);
   });
+  updateScore()
 }
 
 (function () {

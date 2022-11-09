@@ -3,6 +3,8 @@
   --white: #efecd6;
   --green: rgba(86,255,79,0.75);
   --red: rgb(243 46 46);
+  --blue: rgb(46 46 243);
+  --gray: rgb(150 150 150);
   --cell-size: 60px;
   --checker-size: calc(var(--cell-size) * 0.8);
   --checker-red: radial-gradient(circle, rgb(243 46 46) 10%, rgb(161 36 36) 40%, rgb(181 36 36) 45%, rgb(205 66 66) 65%, rgb(151 26 26) 70%);
@@ -32,7 +34,7 @@
 body {
   width: 100%;
   height: 100%;
-  background: url('./nice-background.jpeg') no-repeat center top;
+  background: url('./img/nice-background.jpeg') no-repeat center top;
   background-size: cover;
 }
 
@@ -162,7 +164,7 @@ main {
 .alien.queen::after,
 .friend.queen::after {
   background: var(--queen-black);
-  content: url('./crown.png');
+  content: url('./img/crown.png');
   display: flex;
   align-items: center;
   justify-content: center;
@@ -200,10 +202,42 @@ main {
   opacity: 0;
 }
 
-/* .possible-attack:hover::before {
-  border: 2px solid var(--red);
+.score-board {
+  width: 150px;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 60px;
+  background: var(--black);
+  color: var(--white);
+  border-radius: 4px;
+  right: 140px;
+  padding: 20px;
+  font-family: 'Arial';
+}
+.score-board__row {
+  margin-bottom: 15px;
 }
 
-.possible-step:hover::before {
-  border: 2px solid var(--green);
-} */
+.give-up {
+  background: var(--gray);
+  opacity: 0.8;
+  border-radius: 4px;
+  border: none;
+  color: var(--black);
+  padding: 5px 20px;
+}
+.give-up:hover {
+  opacity: 0.6;
+  cursor: pointer;
+}
+.give-up:active {
+  opacity: 1;
+  outline: none;
+}
+.score-board__in-game.green {
+  color: var(--green);
+}
+.score-board__in-game.red {
+  color: var(--red);
+}

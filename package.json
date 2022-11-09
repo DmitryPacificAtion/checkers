@@ -20,6 +20,7 @@
   "homepage": "https://github.com/DmitryPacificAtion/checkers#readme",
   "devDependencies": {
     "@cucumber/cucumber": "^8.7.0",
-    "hamjest": "^3.7.3"
+    "hamjest": "^3.7.3",
+    "chai": "^4.3.7"
   }
 }

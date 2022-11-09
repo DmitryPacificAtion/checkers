@@ -170,8 +170,6 @@ const putCheckerToTheBoard = (name, field, index) => {
 
 function init() {
   console.time('init');
-  // TODO: Reduce amount of <div />
-
   getFieldsHTML().forEach((field, index) => {
     putCheckerToTheBoard(CONSTANTS.FRIEND, field, index);
     putCheckerToTheBoard(CONSTANTS.ALIEN, field, index);

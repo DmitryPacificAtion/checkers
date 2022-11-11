@@ -8,7 +8,6 @@ Given('Lucy is located \\{{int}} metres from Sean', function (int) {
 });
 
 When('Sean shouts {string}', function (string) {
-    
     return 'pending';
 });
 

@@ -177,7 +177,10 @@ function init() {
   updateScore()
 }
 
-(function () {
+(function logic () {
   init();
   document.getElementById('give-up').addEventListener('click', giveUp)
 })();
+
+const Game = {};
+module.exports = Game;

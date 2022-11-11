@@ -1,7 +1,7 @@
-# Feature: Set up the game
-#     Scenario: Render the board
-#         Given User loaded the game
-#         Then He shoould see the board
+Feature: Set up the game
+    Scenario: Render the board
+        Given User loaded the game
+        Then He shoould see the board
 
     # Scenario: Render the horisontal marks
     #     Given User open the game

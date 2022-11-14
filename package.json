@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "coverage": "jest --collect-coverage",
     "serve": "node server.js",
     "build": "npx webpack --config webpack.config.js",
     "start": "npm run build && npm run serve"

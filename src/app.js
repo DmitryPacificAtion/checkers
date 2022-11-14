@@ -22,7 +22,7 @@ import {
   updateScore,
 } from './helper';
 
-import { isEquals, is } from './functional-utils';
+import { isEquals, is, curry } from './functional-utils';
 
 export const defaultArrangements = {
   [CONSTANTS.FRIEND]: ['a7', 'e3'],
@@ -220,6 +220,7 @@ export const putCheckerToTheBoard = (name, field, index) => {
 
 export default function init() {
   console.time('init');
+  curry(is, [1, 2, 3])();
   getFieldsHTML().forEach((field, index) => {
     putCheckerToTheBoard(CONSTANTS.FRIEND, field, index);
     putCheckerToTheBoard(CONSTANTS.ALIEN, field, index);

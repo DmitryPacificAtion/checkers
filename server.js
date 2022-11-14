@@ -4,9 +4,15 @@ const bodyParser = require('body-parser');
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
-  res.status(200).sendFile(path.join(__dirname, 'board.html'));
+  res.sendFile(path.join(__dirname, 'public', 'board.html'));
 });
+
+app.use((req, res, next) => {
+  res.redirect('/');
+});
+
 
 app.listen(3001);

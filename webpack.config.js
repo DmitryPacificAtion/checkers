@@ -1,36 +1,10 @@
 const path = require('path');
 
-const commonConfig = {
-  module: {
-    rules: [
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-      },
-    ],
-  },
-  resolve: {
-    extensions: ['.js'],
+module.exports = {
+  entry: './src/app.js',
+  mode: 'development',
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'public'),
   },
 };
-
-module.exports = [
-  {
-    ...commonConfig,
-    target: 'node',
-    entry: './server.js',
-    output: {
-      path: path.resolve(__dirname, './public'),
-      filename: 'index.js',
-    },
-    plugins: [],
-  },
-  {
-    ...commonConfig,
-    entry: './src/app.js',
-    output: {
-      path: path.resolve(__dirname, './public'),
-      filename: 'index.js',
-    },
-  },
-];

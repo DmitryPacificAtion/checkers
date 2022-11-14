@@ -1,4 +1,4 @@
-import { pipe, isEquals, add, is, div, map, join } from './functional-utils';
+import { pipe, isEquals, add, div, map, join } from './functional-utils';
 
 export const CONSTANTS = {
   FRIEND: 'friend',
@@ -200,3 +200,44 @@ export const updateScore = () => {
   total[0].innerText = friends.length;
   total[1].innerText = aliens.length;
 };
+
+// module.exports = {
+//   CONSTANTS,
+//   players,
+//   QUEEN_FOR_ALIEN_INDEXES,
+//   QUEEN_FOR_FRIEND_INDEXES,
+//   getFieldsHTML,
+//   getFieldsObject,
+//   getFieldById,
+//   getCharAt,
+//   getCoordinates,
+//   getCharFrom,
+//   oppositePlayer,
+//   getTurn,
+//   clearPossibleStepsSelection,
+//   clearReadyField,
+//   setTurn,
+//   setPointers,
+//   clearPointers,
+//   isWinner,
+//   showWinnerModal,
+//   getInnerCell,
+//   isCellEmpty,
+//   hasFriend,
+//   hasEnemy,
+//   isCellEmptyNew,
+//   hasFriendNew,
+//   hasEnemyNew,
+//   highlightCellForMove,
+//   highlightCellForAttack,
+//   topRight,
+//   topLeft,
+//   bottomLeft,
+//   bottomRight,
+//   directions,
+//   convertDiffToDirection,
+//   isQueen,
+//   shouldUpgrateToQueen,
+//   upgradeToQueen,
+//   updateScore,
+// };

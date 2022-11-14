@@ -24,7 +24,7 @@ import {
 
 import { isEquals, is } from './functional-utils';
 
-const defaultArrangements = {
+export const defaultArrangements = {
   [CONSTANTS.FRIEND]: ['a7', 'e3'],
   [CONSTANTS.ALIEN]: ['d6', 'b4'],
   // [CONSTANTS.FRIEND]: [
@@ -50,7 +50,7 @@ const defaultArrangements = {
   // ]
 };
 
-const endGame = () => {
+export const endGame = () => {
   Object.values(document.querySelectorAll(`.${CONSTANTS.FRIEND}`)).forEach(
     (cell) => {
       cell.onclick = null;
@@ -67,14 +67,14 @@ const endGame = () => {
   document.getElementById('give-up').removeEventListener('click', giveUp);
 };
 
-const giveUp = () => {
+export const giveUp = () => {
   showWinnerModal(oppositePlayer(getTurn()));
   clearReadyField();
   clearPossibleStepsSelection();
   endGame();
 };
 
-const endTurn = () => {
+export const endTurn = () => {
   const turn = getTurn();
   clearReadyField();
   clearPossibleStepsSelection();
@@ -93,7 +93,7 @@ const endTurn = () => {
   }
 };
 
-const onMoveHandler =
+export const onMoveHandler =
   (fromId) =>
   ({ target }) => {
     const source = getFieldById(fromId);
@@ -104,7 +104,7 @@ const onMoveHandler =
     endTurn();
   };
 
-const onAtackHandler =
+export const onAtackHandler =
   (fromId) =>
   ({ target }) => {
     const [resultDirection] = directions.diff(fromId, target.id);
@@ -131,7 +131,7 @@ const onAtackHandler =
     }
   };
 
-const defineCellsForAttack = (cell) => (direction) => {
+export const defineCellsForAttack = (cell) => (direction) => {
   const cellsForAttack = [];
   for (var index = 1; ; index++) {
     const nextCell = document.getElementById(direction(index)(cell.id));
@@ -151,7 +151,7 @@ const defineCellsForAttack = (cell) => (direction) => {
   }
 };
 
-const defineCellsToMove = (cell) => (direction) => {
+export const defineCellsToMove = (cell) => (direction) => {
   const foundCells = [];
   for (var index = 1; ; index++) {
     const nextCell = document.getElementById(direction(index)(cell.id));
@@ -167,7 +167,7 @@ const defineCellsToMove = (cell) => (direction) => {
   return foundCells.map(highlightCellForMove);
 };
 
-const definePossibleSteps = (cell) => {
+export const definePossibleSteps = (cell) => {
   const { firstChild: target } = cell;
   const directionsForAttack = directions.all
     .map(defineCellsForAttack(cell))
@@ -187,7 +187,7 @@ const definePossibleSteps = (cell) => {
   return directionsForAttack;
 };
 
-const onClickChecker = ({ target }) => {
+export const onClickChecker = ({ target }) => {
   const { parentNode: cell } = target;
   if (getFieldById(cell.id)) {
     clearReadyField();
@@ -202,7 +202,7 @@ const onClickChecker = ({ target }) => {
   }
 };
 
-const createChecker = (name, index) => {
+export const createChecker = (name, index) => {
   const div = document.createElement('div');
   div.addEventListener('click', onClickChecker);
 
@@ -211,14 +211,14 @@ const createChecker = (name, index) => {
   return div;
 };
 
-const putCheckerToTheBoard = (name, field, index) => {
+export const putCheckerToTheBoard = (name, field, index) => {
   if (defaultArrangements[name].includes(field.id)) {
     const checker = createChecker(name, index);
     field.appendChild(checker);
   }
 };
 
-function init() {
+export default function init() {
   console.time('init');
   getFieldsHTML().forEach((field, index) => {
     putCheckerToTheBoard(CONSTANTS.FRIEND, field, index);
@@ -231,3 +231,18 @@ function init() {
   init();
   document.getElementById('give-up').addEventListener('click', giveUp);
 })();
+
+// module.exports = {
+//   defaultArrangements,
+//   endGame,
+//   giveUp,
+//   endTurn,
+//   onMoveHandler,
+//   onAtackHandler,
+//   defineCellsForAttack,
+//   defineCellsToMove,
+//   definePossibleSteps,
+//   onClickChecker,
+//   createChecker,
+//   putCheckerToTheBoard,
+// }
